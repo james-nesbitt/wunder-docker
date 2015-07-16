@@ -26,17 +26,16 @@ ADD etc/yum.repos.d/blackfire.repo /etc/yum.repos.d/blackfire.repo
 RUN /usr/bin/yum install -y install pygpgme blackfire-php
 RUN /usr/bin/sed -i "s,unix:///var/run/blackfire/agent.sock,tcp://blackfire.app:8707," /etc/php.d/zz-blackfire.ini
 
-# Install Drush
-ADD .drush /app/.drush
-RUN /usr/bin/chown -R app:app /app/.drush && \
-    /usr/bin/git clone -b 7.x https://github.com/drush-ops/drush.git /usr/local/src/drush && \
-    /usr/bin/ln -s /usr/local/src/drush/drush /usr/bin/drush && \
-    /usr/local/bin/composer --working-dir=/usr/local/src/drush  install
+# Everything else is run as the platform user
+USER app
 
-# Install PlatformSH CLIE
-RUN /usr/bin/git clone -b master https://github.com/platformsh/platformsh-cli /usr/local/src/platform && \
-    /usr/bin/ln -s /usr/local/src/platform/platform /usr/local/bin/platform && \
-    /usr/local/bin/composer --working-dir=/usr/local/src/platform install
+# Install DRUSH, which is a requiremnt for platform
+RUN composer global require drush/drush:dev-master
+# RUN composer global require drush/config-extra
+
+# Install platform.sh cli
+RUN composer global require platformsh/cli:@stable
+# RUN composer global require "commerceguys/platform-cli=1.*"
 
 # Some usefull env variables
 ENV TERM=xterm
@@ -47,15 +46,16 @@ CMD ["/bin/bash"]
 
 ### James Developer ----------------------------------------------------------
 
-# Add the scripts folder
-ADD scripts /app/scripts
-RUN /usr/bin/chown -R app:app /app/scripts
-
 # Make the app user use the zsh shell with oh-my-zsh installed
 ADD .oh-my-zsh /app/.oh-my-zsh
 ADD .zshrc /app/.zshrc
+
+USER root
+
 RUN /usr/sbin/usermod -s /bin/zsh app && \
     chown -R app:app /app/.zshrc /app/.oh-my-zsh
+
+USER app
 
 CMD ["/bin/zsh"]
 

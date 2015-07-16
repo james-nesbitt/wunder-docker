@@ -1,6 +1,7 @@
-### WUNDER BASE --------------------------------------------------------------
 FROM        centos:centos7
 MAINTAINER james.nesbitt@wunderkraut.com
+
+### WUNDER BASE --------------------------------------------------------------
 
 ## EPEL Dependency on CentOS 7 and Fedora EPEL 7 #
 RUN /usr/bin/yum --assumeyes --verbose install epel-release
@@ -25,4 +26,5 @@ ADD app /app
 RUN /usr/sbin/adduser --home-dir /home/core --uid 500 --shell /bin/nologin --password "`openssl rand -base64 32 | openssl passwd -1 -stdin`" --comment "CoreOS UID User" core
 RUN /usr/sbin/adduser --no-create-home --home-dir /app --uid 1000 --shell /bin/nologin --password "`openssl rand -base64 32 | openssl passwd -1 -stdin`" --comment "application login" app && \
     chown -R app:app /app
+
 ### WUNDER BASE -------------------------------------------------------------
