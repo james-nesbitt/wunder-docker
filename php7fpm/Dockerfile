@@ -12,7 +12,6 @@ RUN /usr/bin/yum --enablerepo=remi,remi-test install --assumeyes --verbose php70
     php70-php-ldap php70-php-sqlite php70-php-pecl-memcache php70-php-pecl-memcached php70-php-gd php70-php-mbstring \
     php70-php-mcrypt php70-php-xml php-pecl-yaml php70-php-pecl-selinux
 # Override some of the default php-fpm settings with our own.
-ADD etc/php.ini /etc/opt/remi/php70/php.ini
 ADD etc/php-fpm.conf /etc/opt/remi/php70/php-fpm.conf
 ADD etc/php-fpm.d/www.conf /etc/opt/remi/php70/php-fpm.d/www.conf
 
