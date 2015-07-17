@@ -18,9 +18,6 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7 && \
     curl -sS https://getcomposer.org/installer | php && \
     mv composer.phar /usr/local/bin/composer
 
-# Make sure that the composer items are in path
-ENV COMPOSER_HOME /composer
-ENV PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/composer/vendor/bin"
 # Create the composer build path
 RUN /usr/bin/mkdir /composer && \
     /usr/bin/chown app:app /composer
@@ -28,14 +25,18 @@ RUN /usr/bin/mkdir /composer && \
 # Everything else is run as the platform user
 USER app
 
+# Make sure that the composer items are in path
+ENV COMPOSER_HOME /composer
+ENV PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/composer/vendor/bin"
+
 # Install DRUSH, which is a requiremnt for platform
-RUN composer global require drush/drush:dev-master
+RUN /usr/local/bin/composer global require drush/drush:dev-master
 ENV PLATFORMSH_CLI_DRUSH=/composer/vendor/bin/drush
-# RUN composer global require drush/config-extra
+# RUN /usr/local/bin/composer global require drush/config-extra
 
 # Install platform.sh cli
-RUN composer global require platformsh/cli:@stable
-# RUN composer global require "commerceguys/platform-cli=1.*"
+RUN /usr/local/bin/composer global require platformsh/cli:@stable
+# RUN /usr/local/bin/composer global require "commerceguys/platform-cli=1.*"
 
 # Some additional Platform ENV Variables
 ENV PLATFORMSH_CLI_DEBUG=0
