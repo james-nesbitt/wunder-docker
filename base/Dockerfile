@@ -23,8 +23,10 @@ ADD app /app
 # - core : 500 : this is a user who's uid would match that of a CoreOS host;
 # - app : 1000 : this is the primary application user who will own files, and who's group will have access to those files (SHOULD WE ALSO? : --root /app ; seems a little bit overzealous, and might mess over some of the subboxes.)
 # (we generate random password, everytime this image is built. (yes it used openssl; twice even)
-RUN /usr/sbin/adduser --home-dir /home/core --uid 500 --shell /bin/nologin --password "`openssl rand -base64 32 | openssl passwd -1 -stdin`" --comment "CoreOS UID User" core
-RUN /usr/sbin/adduser --no-create-home --home-dir /app --uid 1000 --shell /bin/nologin --password "`openssl rand -base64 32 | openssl passwd -1 -stdin`" --comment "application login" app && \
+RUN /sbin/groupadd --gid 500 core & \
+    /usr/sbin/adduser --home-dir /home/core --uid 500 --gid 500 --shell /bin/nologin --password "`openssl rand -base64 32 | openssl passwd -1 -stdin`" --comment "CoreOS UID User" core
+RUN /sbin/groupadd --gid 1000 app & \
+    /usr/sbin/adduser --no-create-home --home-dir /app --uid 1000 --gid 1000 --shell /bin/nologin --password "`openssl rand -base64 32 | openssl passwd -1 -stdin`" --comment "application login" app && \
     chown -R app:app /app
 
 ### WUNDER BASE -------------------------------------------------------------
