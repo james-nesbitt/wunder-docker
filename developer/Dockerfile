@@ -12,6 +12,10 @@ RUN /usr/bin/echo "app        ALL=(ALL)       NOPASSWD: ALL" > /etc/sudoers.d/ap
 # Install a mysql-client
 RUN /usr/bin/yum install --assumeyes --verbose mariadb
 
+# Install nodejs and npm, which gets used for lots of stuff with SASS/SCSS
+RUN /usr/bin/yum install --assumeyes --verbose nodejs npm
+RUN /usr/bin/npm install gulp -g
+
 # Install PHP which will be used for blackfire and drush
 RUN /usr/bin/yum install --assumeyes --verbose php-cli php-common \
     php-pecl-apc php-pdo php-mysql php-pgsql php-pecl-mongo \
