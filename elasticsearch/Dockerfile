@@ -14,6 +14,10 @@ RUN /usr/bin/rpm --import https://packages.elastic.co/GPG-KEY-elasticsearch
 ADD etc/yum.repos.d/elasticsearch.repo etc/yum.repos.d/elasticsearch.repo
 RUN /usr/bin/yum --assumeyes --verbose install elasticsearch
 
+# Set some vars used by the elasticsearch.yml
+ENV ELASTICSEARCH_CLUSTER project
+ENV ELASTICSEARCH_NAME first
+
 # Start the Redis service, and expose the 6379 port for TCP connections
 CMD ["/usr/share/elasticsearch/bin/elasticsearch"]
 EXPOSE 9300 # REST API Port

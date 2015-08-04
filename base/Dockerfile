@@ -29,4 +29,6 @@ RUN /sbin/groupadd --gid 1000 app & \
     /usr/sbin/adduser --no-create-home --home-dir /app --uid 1000 --gid 1000 --shell /bin/nologin --password "`openssl rand -base64 32 | openssl passwd -1 -stdin`" --comment "application login" app && \
     chown -R app:app /app
 
+CMD ["/bin/bash"] # Used just to prevent certain types of RemoteAPI failures
+
 ### WUNDER BASE -------------------------------------------------------------

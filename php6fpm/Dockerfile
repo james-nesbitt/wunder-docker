@@ -24,7 +24,8 @@ RUN /usr/sbin/adduser --home-dir /var/lib/nginx --uid 999 --user-group --shell /
     /usr/bin/chown nginx:app /app/log/php-fpm
 
 # Start the PHP-FPM service, and expose the 9000 port for TCP connections
-CMD ["/usr/sbin/php-fpm",  "-c /etc/php-fpm.conf"]
+ENTRYPOINT ["/usr/sbin/php-fpm"]
+CMD ["-c /etc/php-fpm.conf"]
 EXPOSE 9000
 
 ### /PHP-FPM ------------------------------------------------------------------

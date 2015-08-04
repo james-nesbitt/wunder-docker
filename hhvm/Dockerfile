@@ -20,7 +20,8 @@ RUN /usr/sbin/adduser --home-dir /var/lib/nginx --uid 999 --user-group --shell /
 
 ADD etc/hhvm /etc/hhvm
 
-CMD ["/usr/bin/hhvm", "--mode=server", "--config=/etc/hhvm/server.ini", "--user=nginx"]
+ENTRYPOINT ["/usr/bin/hhvm"]
+CMD ["--mode=server", "--config=/etc/hhvm/server.ini", "--user=nginx"]
 # ExecStart=/usr/local/bin/hhvm --config /etc/hhvm/server.ini --user nobody
 
 ### /HHVM --------------------------------------------------------------------

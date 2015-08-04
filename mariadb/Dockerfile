@@ -31,7 +31,9 @@ RUN /usr/bin/mysql_install_db --basedir=/usr --datadir=/var/lib/mysql --user=mys
 #    mysql -uroot -e "FLUSH PRIVILEGES"
 
 # AS a command, run the mariadb server, and expose the 3306 port for TCP connections
-CMD ["/usr/bin/mysqld_safe", "--basedir=/usr", "--datadir=/var/lib/mysql", "--user=mysql", "--log-error=/app/log/mariadb/error.log", "--pid-file=/var/run/mariadb/mariadb.pid", "--socket=/var/run/mariadb/mariadb.sock", "--bind=0.0.0.0", "--port=3306"]
+
+ENTRYPOINT ["/usr/bin/mysqld_safe"]
+CMD ["--basedir=/usr", "--datadir=/var/lib/mysql", "--user=mysql", "--log-error=/app/log/mariadb/error.log", "--pid-file=/var/run/mariadb/mariadb.pid", "--socket=/var/run/mariadb/mariadb.sock", "--bind=0.0.0.0", "--port=3306"]
 EXPOSE 3306
 
 ### /MariaDB --------------------------------------------------------------------

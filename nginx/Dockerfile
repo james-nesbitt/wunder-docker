@@ -19,7 +19,8 @@ RUN /usr/bin/gpasswd -a nginx app
 
 # As a command run the nginx server in foreground mode.
 # IF nginx.conf does not have it, add this: "-g 'daemon off'"
-CMD ["/usr/sbin/nginx", "-c/etc/nginx/nginx.conf"]
+ENTRYPOINT ["/usr/sbin/nginx"]
+CMD ["-c/etc/nginx/nginx.conf"]
 EXPOSE 80 443
 
 ### /NGINX -------------------------------------------------------------------

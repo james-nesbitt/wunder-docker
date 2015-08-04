@@ -13,10 +13,7 @@ RUN /usr/bin/yum install --assumeyes --verbose php-cli php-common \
     php-mcrypt php-xml php-pecl-yaml
 
 # Install Composer
-RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7 && \
-    cd /root && \
-    curl -sS https://getcomposer.org/installer | php && \
-    mv composer.phar /usr/local/bin/composer
+RUN /usr/bin/curl -sS https://getcomposer.org/installer | php -- --filename=composer --install-dir=/usr/local/bin
 
 # Create the composer build path
 RUN /usr/bin/mkdir /composer && \

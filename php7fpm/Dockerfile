@@ -23,7 +23,8 @@ RUN /usr/bin/mkdir -p /app/log/php-fpm && \
     /usr/bin/chown nginx:app /app/log/php-fpm
 
 # Start the PHP-FPM service, and expose the 9000 port for TCP connections
-CMD ["/opt/remi/php70/root/sbin/php-fpm",  "-c /opt/remi/php70/php-fpm.conf"]
+ENTRYPOINT ["/opt/remi/php70/root/sbin/php-fpm"]
+CMD ["-c /opt/remi/php70/php-fpm.conf"]
 EXPOSE 9000
 
 ### /PHP-FPM ------------------------------------------------------------------
