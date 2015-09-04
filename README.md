@@ -60,10 +60,10 @@ Using this base image, it becomes easy to implement separated applications, with
 ## Images
 
 - base : a base image
-- mariadb : a MariaDB 10.x database server
-- nginx : a standard Centos nginx server
+- mariadb : a MariaDB 10.x database server, from the mariadb provided repo
+- nginx : a stable Centos nginx server, from the nginx provided repo
 
 3 interchangeable FPM servers
 - php6fpm : PHP 6 FPM service
-- php7fpm : PHP & FPM service
+- php7fpm : PHP & FPM service, from the zend repo
 - hhvm : HHVM FPM service
