@@ -7,7 +7,7 @@ MAINTAINER  james.nesbitt@wunderkraut.com
 RUN /usr/bin/yum install -y openssl tar git
 
 # Install a mysql-client, which drush sometimes needs
-# @note currently this uses mariadb 5.x, wheras our db image uses 10.x (an upgrade would require using the yum repo)
+# @note currently this uses mariadb 5.x, wheras our db image uses 10.x (an upgrade would require using the yum mariadb repo)
 RUN /usr/bin/yum install --assumeyes --verbose mariadb
 
 # Install PHP which will be used for drush
@@ -30,6 +30,10 @@ RUN /usr/bin/mkdir /app/.drush/ && \
     /usr/bin/chown -R app:app /app/.drush
 
 USER app
+
+# set up some env variables to make using easier.
+ENV TERM="xterm"
+
 ENTRYPOINT ["/usr/local/bin/drush"]
 CMD ["status"]
 
