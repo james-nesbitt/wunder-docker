@@ -3,7 +3,12 @@ MAINTAINER  james.nesbitt@wunderkraut.com
 
 ### NGINX --------------------------------------------------------------------
 
+# Install the nginx signing key
+ADD root/nginx_signing.key /root/nginx_signing.key
+RUN /usr/bin/rpm --verbose --import http://nginx.org/keys/nginx_signing.key
+
 # Install nginx (make it run as the nginx user)
+ADD etc/yum.repos.d/nginx.repo /etc/yum.repos.d/nginx.repo
 RUN /usr/bin/yum install --assumeyes --verbose nginx
 
 ADD etc/nginx/nginx.conf /etc/nginx/nginx.conf
