@@ -1,19 +1,37 @@
-FROM       jamesnesbitt/wunder-base
+FROM        centos:centos7
 MAINTAINER james.nesbitt@wunderkraut.com
 
-### Management ---------------------------------------------------------------
+### Base --------------------------------------------------------------------
 
-### /Management --------------------------------------------------------------
+## EPEL Dependency on CentOS 7 and Fedora EPEL 7 #
+RUN /usr/bin/yum --assumeyes --verbose install epel-release
 
-# Install Supervisor
-RUN /usr/bin/yum install -y supervisor
-ADD etc/supervisord.d /etc/supervisord.d
-EXPOSE 9001
+# We could consider running real systemd, instead of the fake, but it probably still can't get dbus running, until kdbus gets into kernel (4.1 probably).
+#RUN /usr/bin/yum remove -y fakesystemd && /usr/bin/yum install -y systemd
 
-# Command that will run when the server starts
-USER root
-CMD ["/usr/bin/supervisord", "--nodaemon", "--configuration /etc/supervisord.conf"]
+# Update and clean - not really necessary, just use the latest CentOS, and it will be pretty much up to date
+#RUN /usr/bin/yum update -y && /usr/bin/yum clean -y all
 
+# Install some tools used here. (openssl is needed only for password generation below, hostname prevents a number of operations from giving warnings)
+# Other packages to consider : unzip tar git (git has a lot of perl deps)
+RUN /usr/bin/yum --assumeyes --verbose install hostname openssl
+
+ADD app /app
+
+# Volume for temporary space
+VOLUME /tmp
+
+# Create two users to share UIDs across all systems
+# - core : 500 : this is a user who's uid would match that of a CoreOS host;
+# - app : 1000 : this is the primary application user who will own files, and who's group will have access to those files (SHOULD WE ALSO? : --root /app ; seems a little bit overzealous, and might mess over some of the subboxes.)
+# (we generate random password, everytime this image is built. (yes it used openssl; twice even)
+RUN /sbin/groupadd --gid 500 core & \
+    /usr/sbin/adduser --home-dir /home/core --uid 500 --gid 500 --shell /bin/nologin --password "`openssl rand -base64 32 | openssl passwd -1 -stdin`" --comment "CoreOS UID User" core
+RUN /sbin/groupadd --gid 1000 app & \
+    /usr/sbin/adduser --no-create-home --home-dir /app --uid 1000 --gid 1000 --shell /bin/nologin --password "`openssl rand -base64 32 | openssl passwd -1 -stdin`" --comment "application login" app && \
+    chown -R app:app /app
+
+### /Base --------------------------------------------------------------------
 ### MariaDB ------------------------------------------------------------------
 
 # Install MariaDB
@@ -43,8 +61,8 @@ RUN (/usr/bin/mysqld_safe &) && sleep 3 && \
    mysql -uroot -e "DELETE FROM mysql.user WHERE User=''" && \
    mysql -uroot -e "DROP DATABASE test" && \
    mysql -uroot -e "CREATE DATABASE project" && \
-   mysql -uroot -e "GRANT ALL on project.* to project@* IDENTIFIED BY \"project\"" && \
-   mysql -uroot -e "FLUSH PRIVILEGES" && \
+   mysql -uroot -e "GRANT ALL on project.* to project IDENTIFIED BY \"project\"" && \
+   mysql -uroot -e "FLUSH PRIVILEGES"
 
 # AS a command, run the mariadb server, and expose the 3306 port for TCP connections
 #ENTRYPOINT ["/usr/bin/mysqld_safe"]
@@ -103,7 +121,7 @@ RUN /bin/mkdir -p /var/run/blackfire && \
 #CMD ["--socket", "tcp://0.0.0.0:8707", "--config", "/dev/null"]
 
 ### /Blackfire --------------------------------------------------------------
-### REDIS -------------------------------------------------------------------
+### Redis -------------------------------------------------------------------
 
 # Install Redis
 RUN /usr/bin/yum --assumeyes --verbose install redis
@@ -116,7 +134,7 @@ ADD etc/redis.conf /etc/redis.conf
 #CMD ["/etc/redis.conf"]
 EXPOSE 6379
 
-### /REDIS ------------------------------------------------------------------
+### /Redis ------------------------------------------------------------------
 ### ElasticSearch -----------------------------------------------------------
 
 # Install the latest JDK
@@ -136,11 +154,26 @@ ENV ELASTICSEARCH_NAME first
 
 # Start the Redis service, and expose the 6379 port for TCP connections
 #CMD ["/usr/share/elasticsearch/bin/elasticsearch"]
-#EXPOSE 9300 # REST API Port
-EXPOSE 9200 # Java API Port
+
+# REST API Port
+EXPOSE 9300
+# Java API Port
+EXPOSE 9200
 
 ### /ElasticSearch ------------------------------------------------------------
-### DEVELOPER  ---------------------------------------------------------------
+### Management ---------------------------------------------------------------
+
+# Install Supervisor
+RUN /usr/bin/yum install -y supervisor
+ADD etc/supervisord.d /etc/supervisord.d
+EXPOSE 9001
+
+# Command that will run when the server starts
+#USER root
+#CMD ["/usr/bin/supervisord", "--nodaemon", "--configuration /etc/supervisord.conf"]
+
+### /Management --------------------------------------------------------------
+### Developer  ---------------------------------------------------------------
 
 # Install some tools that are usefull for a developer
 RUN /usr/bin/yum install -y openssl tar git zsh sudo vim
@@ -155,8 +188,19 @@ RUN /usr/bin/npm install gulp -g
 # Install composer which will be used to install drush
 RUN /usr/bin/curl -sS https://getcomposer.org/installer | php -- --filename=composer --install-dir=/usr/local/bin
 
+# Optional volume for a source root
+VOLUME /app/src
+
+# Create the composer build path
+RUN /usr/bin/mkdir /composer && \
+    /usr/bin/chown app:app /composer
+
 # Everything else is run as the platform user
 USER app
+
+# Make sure that the composer items are in path
+ENV COMPOSER_HOME /composer
+ENV PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/composer/vendor/bin"
 
 # Install DRUSH, which is a requiremnt for platform
 RUN composer global require drush/drush:dev-master
@@ -169,22 +213,28 @@ RUN composer global require platformsh/cli:@stable
 # Some usefull env variables
 ENV TERM=xterm
 
-#CMD ["/bin/bash"]
+# USER app
+# CMD ["/bin/bash"]
 
-### /DEVELOPER ---------------------------------------------------------------
+USER root
+
+### /Developer ---------------------------------------------------------------
 ### James Developer ----------------------------------------------------------
 
 # Make the app user use the zsh shell with oh-my-zsh installed
 ADD .oh-my-zsh /app/.oh-my-zsh
 ADD .zshrc /app/.zshrc
 
-USER root
-
 RUN /usr/sbin/usermod -s /bin/zsh app && \
     chown -R app:app /app/.zshrc /app/.oh-my-zsh
 
-USER app
+# USER app
+# CMD ["/bin/zsh"]
 
-#CMD ["/bin/zsh"]
+### /James Developer ----------------------------------------------------------
+### Run -----------------------------------------------------------------------
 
-### /James Developer ---------------------------------------------------------
+USER root
+CMD ["/usr/bin/supervisord", "--nodaemon", "--configuration /etc/supervisord.conf"]
+
+### /Run ----------------------------------------------------------------------
