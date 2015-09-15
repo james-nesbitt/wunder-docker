@@ -7,7 +7,7 @@ MAINTAINER  james.nesbitt@wunderkraut.com
 RUN /usr/bin/yum install --assumeyes --verbose php-fpm php-common \
     php-pecl-apc php-pdo php-mysql php-pgsql php-pecl-mongo \
     php-ldap php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring \
-    php-mcrypt php-xml php-pecl-yaml
+    php-mcrypt php-xml php-pecl-yaml php-suhosin
 
 # Install blackfire
 ADD etc/yum.repos.d/blackfire.repo /etc/yum.repos.d/blackfire.repo
