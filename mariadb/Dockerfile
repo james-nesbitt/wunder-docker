@@ -13,7 +13,8 @@ ADD etc/my.cnf /etc/my.cnf
 
 # Create our MySQL log folder : we put logs here so that we can easily share a volume across all containers
 RUN /usr/bin/mkdir -p /app/log/mariadb && \
-    /usr/bin/chown mysql:mysql /app/log/mariadb
+	/usr/bin/mkdir -p /var/run/mariadb && \
+    /usr/bin/chown mysql:mysql /app/log/mariadb /var/run/mariadb
 
 # Initialize the db
 RUN /usr/bin/mysql_install_db --basedir=/usr --datadir=/var/lib/mysql --user=mysql --log-error=/app/log/mariadb/error.log --pid-file=/var/run/mariadb/mariadb.pid --socket=/var/run/mariadb/mariadb.sock --bind=0.0.0.0 --port=3306
