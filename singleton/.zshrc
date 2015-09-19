@@ -78,3 +78,4 @@ export ARCHFLAGS="-arch x86_64"
 # Stop some grep errors
 unset GREP_OPTIONS
 
+export PATH="/app/bin:/app/.composer/vendor/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
