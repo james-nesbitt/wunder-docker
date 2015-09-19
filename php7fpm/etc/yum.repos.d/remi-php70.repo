@@ -1,6 +1,3 @@
-# This repository only provides PHP 7.0 and its extensions
-# WARNING: If you enable this repository, you must also enable "remi"
-#          which provides common dependencies
 
 [remi-php70]
 name=Remi's PHP 7.0 RPM repository for Enterprise Linux 7 - $basearch
