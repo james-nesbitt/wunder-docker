@@ -3,16 +3,16 @@ MAINTAINER  james.nesbitt@wunderkraut.com
 
 ### PHP-FPM -------------------------------------------------------------------
 
-# Prepare to use the remi repo for PHP
+# Prepare to use the remi repo for PHP: our .repo file has certain repos enabled=1
 ADD root/remi-release-7.rpm /root/remi-release-7.rpm
 RUN /usr/bin/rpm -Uvh /root/remi-release-7.rpm
 ADD etc/yum.repos.d/remi.repo /etc/yum.repos.d/remi.repo
 
 # Install php-fpm
-RUN /usr/bin/yum install --assumeyes --verbose --enablerepo=remi,remi-php56 \
+RUN /usr/bin/yum install --assumeyes --verbose \
     php-fpm php-common php-pecl-apc php-pdo php-mysql php-pgsql php-pecl-mongo \
     php-ldap php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring \
-    php-mcrypt php-xml php-pecl-yaml php-suhosin
+    php-mcrypt php-xml php-pecl-yaml php-suhosin php-twig php-twig-ctwig
 
 # Install blackfire
 ADD etc/yum.repos.d/blackfire.repo /etc/yum.repos.d/blackfire.repo
