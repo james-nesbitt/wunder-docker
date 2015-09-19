@@ -6,11 +6,11 @@ MAINTAINER  james.nesbitt@wunderkraut.com
 # Prepare to use the remi repo for PHP: our .repo file has certain repos enabled=1
 ADD root/remi-release-7.rpm /root/remi-release-7.rpm
 RUN /usr/bin/rpm -Uvh /root/remi-release-7.rpm
-#ADD etc/yum.repos.d/remi.repo /etc/yum.repos.d/remi.repo
-#ADD etc/yum.repos.d/remi-php70.repo /etc/yum.repos.d/remi-php70.repo
+ADD etc/yum.repos.d/remi.repo /etc/yum.repos.d/remi.repo
+ADD etc/yum.repos.d/remi-php70.repo /etc/yum.repos.d/remi-php70.repo
 
 # Install php-fpm
-RUN /usr/bin/yum install --assumeyes --verbose --enablerepo=remi,remi-php70 \
+RUN /usr/bin/yum install --assumeyes --verbose \
     php-fpm php-pdo php-mysql php-pgsql php-ldap php-gd php-mbstring php-mcrypt php-xml
 
 # Override some of the default php-fpm settings with our own.
