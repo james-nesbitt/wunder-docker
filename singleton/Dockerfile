@@ -1,42 +1,12 @@
-FROM        centos:centos7
+FROM       jamesnesbitt/wunder-base
 MAINTAINER james.nesbitt@wunderkraut.com
 
-### Base --------------------------------------------------------------------
-
-## EPEL Dependency on CentOS 7 and Fedora EPEL 7 #
-RUN /usr/bin/yum --assumeyes --verbose install epel-release
-
-# We could consider running real systemd, instead of the fake, but it probably still can't get dbus running, until kdbus gets into kernel (4.1 probably).
-#RUN /usr/bin/yum remove -y fakesystemd && /usr/bin/yum install -y systemd
-
-# Update and clean - not really necessary, just use the latest CentOS, and it will be pretty much up to date
-#RUN /usr/bin/yum update -y && /usr/bin/yum clean -y all
-
-# Install some tools used here. (openssl is needed only for password generation below, hostname prevents a number of operations from giving warnings)
-# Other packages to consider : unzip tar git (git has a lot of perl deps)
-RUN /usr/bin/yum --assumeyes --verbose install hostname openssl
-
-ADD app /app
-
-# Volume for temporary space
-VOLUME /tmp
-
-# Create two users to share UIDs across all systems
-# - core : 500 : this is a user who's uid would match that of a CoreOS host;
-# - app : 1000 : this is the primary application user who will own files, and who's group will have access to those files (SHOULD WE ALSO? : --root /app ; seems a little bit overzealous, and might mess over some of the subboxes.)
-# (we generate random password, everytime this image is built. (yes it used openssl; twice even)
-RUN /sbin/groupadd --gid 500 core & \
-    /usr/sbin/adduser --home-dir /home/core --uid 500 --gid 500 --shell /bin/nologin --password "`openssl rand -base64 32 | openssl passwd -1 -stdin`" --comment "CoreOS UID User" core
-RUN /sbin/groupadd --gid 1000 app & \
-    /usr/sbin/adduser --no-create-home --home-dir /app --uid 1000 --gid 1000 --shell /bin/nologin --password "`openssl rand -base64 32 | openssl passwd -1 -stdin`" --comment "application login" app && \
-    chown -R app:app /app
-
-### /Base --------------------------------------------------------------------
 ### MariaDB ------------------------------------------------------------------
 
 # Install MariaDB
 ADD etc/yum.repos.d/mariadb.repo etc/yum.repos.d/mariadb.repo
 RUN /usr/bin/yum --assumeyes --verbose install mariadb-server mariadb
+RUN /usr/bin/mkdir -p /app/log/mysql
 
 # Overwrite installed mariadb configuration with a custom one
 ADD etc/my.cnf.d/server.cnf /etc/my.cnf.d/server.cnf
@@ -44,7 +14,8 @@ ADD etc/my.cnf /etc/my.cnf
 
 # Create our MySQL log folder : we put logs here so that we can easily share a volume across all containers
 RUN /usr/bin/mkdir -p /app/log/mariadb && \
-    /usr/bin/chown mysql:mysql /app/log/mariadb
+    /usr/bin/mkdir -p /var/run/mariadb && \
+    /usr/bin/chown mysql:mysql /app/log/mariadb /var/run/mariadb
 
 # Initialize the db
 RUN /usr/bin/mysql_install_db --basedir=/usr --datadir=/var/lib/mysql --user=mysql --log-error=/app/log/mariadb/error.log --pid-file=/var/run/mariadb/mariadb.pid --socket=/var/run/mariadb/mariadb.sock --bind=0.0.0.0 --port=3306
@@ -56,7 +27,7 @@ RUN /usr/bin/mysql_install_db --basedir=/usr --datadir=/var/lib/mysql --user=mys
 # - Add our custom project DB
 # - Grant needed privileges on our needed project DB
 # - Make our changes take effect
-RUN (/usr/bin/mysqld_safe &) && sleep 3 && \
+RUN (/usr/bin/mysqld_safe &) && sleep 5 && \
    mysql -uroot -e "UPDATE mysql.user SET Password=PASSWORD('RESETME') WHERE User='root'" && \
    mysql -uroot -e "DELETE FROM mysql.user WHERE User=''" && \
    mysql -uroot -e "DROP DATABASE test" && \
@@ -66,13 +37,19 @@ RUN (/usr/bin/mysqld_safe &) && sleep 3 && \
 
 # AS a command, run the mariadb server, and expose the 3306 port for TCP connections
 #ENTRYPOINT ["/usr/bin/mysqld_safe"]
-#CMD ["--basedir=/usr", "--datadir=/var/lib/mysql", "--user=mysql", "--log-error=/app/log/mariadb/error.log", "--pid-file=/var/run/mariadb/mariadb.pid", "--socket=/var/run/mariadb/mariadb.sock", "--bind=0.0.0.0", "--port=3306"]
+#CMD ["--basedir=/usr", "--datadir=/var/lib/mysql", "--user=mysql", "--log-error=/app/log/mariadb/error.log", "--pid-file=/var/run/mariadb/mariadb.pid, "--bind=0.0.0.0", "--port=3306"]
+
 EXPOSE 3306
 
 ### /MariaDB -----------------------------------------------------------------
 ### NGINX --------------------------------------------------------------------
 
+# Install the nginx signing key
+ADD root/nginx_signing.key /root/nginx_signing.key
+RUN /usr/bin/rpm --verbose --import http://nginx.org/keys/nginx_signing.key
+
 # Install nginx (make it run as the nginx user)
+ADD etc/yum.repos.d/nginx.repo /etc/yum.repos.d/nginx.repo
 RUN /usr/bin/yum install --assumeyes --verbose nginx
 
 ADD etc/nginx/nginx.conf /etc/nginx/nginx.conf
@@ -95,13 +72,30 @@ EXPOSE 80 443
 ### /NGINX -------------------------------------------------------------------
 ### PHP-FPM ------------------------------------------------------------------
 
-# Install php-fpm (libX11 and libX11-common come with php-gd)
-RUN /usr/bin/yum install --assumeyes --verbose php-fpm php-common \
-    php-pecl-apc php-pdo php-mysql php-pgsql php-pecl-mongo \
+# Prepare to use the remi repo for PHP: our .repo file has certain repos enabled=1
+ADD root/remi-release-7.rpm /root/remi-release-7.rpm
+RUN /usr/bin/rpm -Uvh /root/remi-release-7.rpm
+ADD etc/yum.repos.d/remi.repo /etc/yum.repos.d/remi.repo
+
+# Install php-fpm
+RUN /usr/bin/yum install --assumeyes --verbose \
+    php-fpm php-common php-pecl-apc php-pdo php-mysql php-pgsql php-pecl-mongo \
     php-ldap php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring \
-    php-mcrypt php-xml php-pecl-yaml
+    php-mcrypt php-xml php-pecl-yaml php-twig php-twig-ctwig
+
+# Install blackfire
+ADD etc/yum.repos.d/blackfire.repo /etc/yum.repos.d/blackfire.repo
+RUN /usr/bin/yum install -y install pygpgme blackfire-php
+RUN /usr/bin/sed -i "s,unix:///var/run/blackfire/agent.sock,tcp://blackfire.app:8707," /etc/php.d/zz-blackfire.ini
+
+# make sure that the nginx user, created, has access to app user files
+# nginx:x:999:999:Nginx web server:/var/lib/nginx:/sbin/nologin
+RUN /usr/bin/mkdir -p /app/log/php-fpm && \
+    /usr/bin/chown nginx:app /app/log/php-fpm
+
 # Override some of the default php-fpm settings with our own.
 ADD etc/php-fpm.d/www.conf /etc/php-fpm.d/www.conf
+ADD etc/php-fpm.conf /etc/php-fpm.conf
 
 # Start the PHP-FPM service, and expose the 9000 port for TCP connections
 #ENTRYPOINT ["/usr/sbin/php-fpm"]
@@ -121,10 +115,11 @@ RUN /bin/mkdir -p /var/run/blackfire && \
 #CMD ["--socket", "tcp://0.0.0.0:8707", "--config", "/dev/null"]
 
 ### /Blackfire --------------------------------------------------------------
-### Redis -------------------------------------------------------------------
+### REDIS -------------------------------------------------------------------
 
 # Install Redis
 RUN /usr/bin/yum --assumeyes --verbose install redis
+RUN /bin/mkdir -p /app/log/redis
 
 # Add the conf files
 ADD etc/redis.conf /etc/redis.conf
@@ -134,7 +129,7 @@ ADD etc/redis.conf /etc/redis.conf
 #CMD ["/etc/redis.conf"]
 EXPOSE 6379
 
-### /Redis ------------------------------------------------------------------
+### /REDIS ------------------------------------------------------------------
 ### ElasticSearch -----------------------------------------------------------
 
 # Install the latest JDK
@@ -161,19 +156,7 @@ EXPOSE 9300
 EXPOSE 9200
 
 ### /ElasticSearch ------------------------------------------------------------
-### Management ---------------------------------------------------------------
-
-# Install Supervisor
-RUN /usr/bin/yum install -y supervisor
-ADD etc/supervisord.d /etc/supervisord.d
-EXPOSE 9001
-
-# Command that will run when the server starts
-#USER root
-#CMD ["/usr/bin/supervisord", "--nodaemon", "--configuration /etc/supervisord.conf"]
-
-### /Management --------------------------------------------------------------
-### Developer  ---------------------------------------------------------------
+### DEVELOPER  ---------------------------------------------------------------
 
 # Install some tools that are usefull for a developer
 RUN /usr/bin/yum install -y openssl tar git zsh sudo vim
@@ -188,19 +171,8 @@ RUN /usr/bin/npm install gulp -g
 # Install composer which will be used to install drush
 RUN /usr/bin/curl -sS https://getcomposer.org/installer | php -- --filename=composer --install-dir=/usr/local/bin
 
-# Optional volume for a source root
-VOLUME /app/src
-
-# Create the composer build path
-RUN /usr/bin/mkdir /composer && \
-    /usr/bin/chown app:app /composer
-
 # Everything else is run as the platform user
 USER app
-
-# Make sure that the composer items are in path
-ENV COMPOSER_HOME /composer
-ENV PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/composer/vendor/bin"
 
 # Install DRUSH, which is a requiremnt for platform
 RUN composer global require drush/drush:dev-master
@@ -213,28 +185,37 @@ RUN composer global require platformsh/cli:@stable
 # Some usefull env variables
 ENV TERM=xterm
 
-# USER app
-# CMD ["/bin/bash"]
+#CMD ["/bin/bash"]
 
-USER root
-
-### /Developer ---------------------------------------------------------------
+### /DEVELOPER ---------------------------------------------------------------
 ### James Developer ----------------------------------------------------------
 
 # Make the app user use the zsh shell with oh-my-zsh installed
 ADD .oh-my-zsh /app/.oh-my-zsh
 ADD .zshrc /app/.zshrc
 
+#ENV PATH /app/bin:/app/.composer/vendor/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+USER root
+
 RUN /usr/sbin/usermod -s /bin/zsh app && \
     chown -R app:app /app/.zshrc /app/.oh-my-zsh
 
-# USER app
-# CMD ["/bin/zsh"]
+#USER app
+#CMD ["/bin/zsh"]
 
-### /James Developer ----------------------------------------------------------
-### Run -----------------------------------------------------------------------
+### /James Developer ---------------------------------------------------------
+### Management ---------------------------------------------------------------
 
 USER root
-CMD ["/usr/bin/supervisord", "--nodaemon", "--configuration /etc/supervisord.conf"]
 
-### /Run ----------------------------------------------------------------------
+# Install Supervisor
+RUN /usr/bin/yum install -y supervisor
+ADD etc/supervisord.d /etc/supervisord.d
+EXPOSE 9001
+
+# Command that will run when the server starts
+USER root
+CMD ["/usr/bin/supervisord", "--nodaemon", "--configuration", "/etc/supervisord.conf"]
+
+### /Management --------------------------------------------------------------
