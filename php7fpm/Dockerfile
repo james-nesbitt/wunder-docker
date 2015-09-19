@@ -13,6 +13,7 @@ ADD etc/yum.repos.d/remi-php70.repo /etc/yum.repos.d/remi-php70.repo
 RUN /usr/bin/yum install --assumeyes --verbose \
     php-fpm php-pdo php-mysql php-pgsql php-ldap php-gd php-mbstring php-mcrypt php-xml
 
+
 # Override some of the default php-fpm settings with our own.
 ADD etc/php-fpm.conf /etc/php-fpm.conf
 ADD etc/php-fpm.d/www.conf /etc/php-fpm.d/www.conf
