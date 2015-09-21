@@ -10,9 +10,9 @@ ADD etc/yum.repos.d/remi.repo /etc/yum.repos.d/remi.repo
 
 # Install php-fpm
 RUN /usr/bin/yum install --assumeyes --verbose \
-    php-fpm php-common php-pecl-apc php-pdo php-mysql php-pgsql php-pecl-mongo \
+    php-fpm php-opcache php-pecl-apc php-pdo php-mysql php-pgsql php-pecl-mongo \
     php-ldap php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring \
-    php-mcrypt php-xml php-pecl-yaml php-suhosin php-twig php-twig-ctwig
+    php-mcrypt php-xml php-pecl-yaml php-twig php-twig-ctwig php-pecl-uploadprogress
 
 # Install blackfire
 ADD etc/yum.repos.d/blackfire.repo /etc/yum.repos.d/blackfire.repo
@@ -28,6 +28,7 @@ RUN /usr/sbin/adduser --home-dir /var/lib/nginx --uid 999 --user-group --shell /
 
 # Override some of the default php-fpm settings with our own.
 ADD etc/php-fpm.d/www.conf /etc/php-fpm.d/www.conf
+ADD etc/php.ini /etc/php.ini
 ADD etc/php-fpm.conf /etc/php-fpm.conf
 
 # Start the PHP-FPM service, and expose the 9000 port for TCP connections
