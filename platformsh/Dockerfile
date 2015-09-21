@@ -7,10 +7,10 @@ MAINTAINER  james.nesbitt@wunderkraut.com
 RUN /usr/bin/yum --assumeyes --verbose install tar gunzip git
 
 # Install PHP
-RUN /usr/bin/yum install --assumeyes --verbose php-cli php-common \
-    php-pecl-apc php-pdo php-mysql php-pgsql php-pecl-mongo \
+RUN /usr/bin/yum install --assumeyes --verbose \
+    php-fpm php-opcache php-pecl-apc php-pdo php-mysql php-pgsql php-pecl-mongo \
     php-ldap php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring \
-    php-mcrypt php-xml php-pecl-yaml
+    php-mcrypt php-xml php-pecl-yaml php-twig php-twig-ctwig php-pecl-uploadprogress
 
 # Install Composer
 RUN /usr/bin/curl -sS https://getcomposer.org/installer | php -- --filename=composer --install-dir=/usr/local/bin
