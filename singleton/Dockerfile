@@ -174,7 +174,7 @@ USER app
 
 # Install DRUSH, which is a requiremnt for platform
 RUN composer global require drush/drush:dev-master
-# RUN composer global require drush/config-extra
+RUN composer global require drush/config-extra
 
 # Install platform.sh cli
 RUN composer global require platformsh/cli:@stable
