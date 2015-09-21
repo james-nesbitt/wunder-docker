@@ -10,9 +10,9 @@ VOLUME /app/assets
 VOLUME /app/backups
 
 # optional volume mounts for application functionality
-#VOLUME /app/.platformsh
-#VOLUME /app/.drush
-#VOLUME /app/.ssh
+VOLUME /app/.platformsh
+VOLUME /app/.drush
+VOLUME /app/.ssh
 
 ENV ELASTICSEARCH_CLUSTER project
 ENV ELASTICSEARCH_NAME first
