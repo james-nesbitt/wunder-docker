@@ -79,14 +79,9 @@ ADD etc/yum.repos.d/remi.repo /etc/yum.repos.d/remi.repo
 
 # Install php-fpm
 RUN /usr/bin/yum install --assumeyes --verbose \
-    php-fpm php-common php-pecl-apc php-pdo php-mysql php-pgsql php-pecl-mongo \
+    php-fpm php-opcache php-pecl-apc php-pdo php-mysql php-pgsql php-pecl-mongo \
     php-ldap php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring \
-    php-mcrypt php-xml php-pecl-yaml php-twig php-twig-ctwig
-
-# Install blackfire
-ADD etc/yum.repos.d/blackfire.repo /etc/yum.repos.d/blackfire.repo
-RUN /usr/bin/yum install -y install pygpgme blackfire-php
-RUN /usr/bin/sed -i "s,unix:///var/run/blackfire/agent.sock,tcp://blackfire.app:8707," /etc/php.d/zz-blackfire.ini
+    php-mcrypt php-xml php-pecl-yaml php-twig php-twig-ctwig 
 
 # make sure that the nginx user, created, has access to app user files
 # nginx:x:999:999:Nginx web server:/var/lib/nginx:/sbin/nologin
@@ -100,7 +95,7 @@ ADD etc/php-fpm.conf /etc/php-fpm.conf
 # Start the PHP-FPM service, and expose the 9000 port for TCP connections
 #ENTRYPOINT ["/usr/sbin/php-fpm"]
 #CMD ["-c /etc/php-fpm.conf"]
-EXPOSE 9000
+#EXPOSE 9000
 
 ### /PHP-FPM -----------------------------------------------------------------
 ### Blackfire ----------------------------------------------------------------
@@ -111,8 +106,12 @@ RUN /usr/bin/yum install -y install pygpgme blackfire-agent blackfire-php
 RUN /bin/mkdir -p /var/run/blackfire && \
     /bin/mkdir -p /var/log/blackfire
 
+# Enable the blackfire php agent
+RUN /usr/bin/sed -i "s,unix:///var/run/blackfire/agent.sock,tcp://blackfire.app:8707," /etc/php.d/zz-blackfire.ini
+
 #ENTRYPOINT ["blackfire-agent"]
 #CMD ["--socket", "tcp://0.0.0.0:8707", "--config", "/dev/null"]
+#EXPOSE 8707
 
 ### /Blackfire --------------------------------------------------------------
 ### REDIS -------------------------------------------------------------------
@@ -127,7 +126,7 @@ ADD etc/redis.conf /etc/redis.conf
 # Start the Redis service, and expose the 6379 port for TCP connections
 #ENTRYPOINT ["/usr/bin/redis-server"]
 #CMD ["/etc/redis.conf"]
-EXPOSE 6379
+#EXPOSE 6379
 
 ### /REDIS ------------------------------------------------------------------
 ### ElasticSearch -----------------------------------------------------------
@@ -147,13 +146,12 @@ RUN /usr/bin/yum --assumeyes --verbose install elasticsearch
 ENV ELASTICSEARCH_CLUSTER project
 ENV ELASTICSEARCH_NAME first
 
-# Start the Redis service, and expose the 6379 port for TCP connections
+# Start the Easticsearch service, and expose the REST and API ports for TCP connections
 #CMD ["/usr/share/elasticsearch/bin/elasticsearch"]
-
 # REST API Port
-EXPOSE 9300
+#EXPOSE 9300
 # Java API Port
-EXPOSE 9200
+#EXPOSE 9200
 
 ### /ElasticSearch ------------------------------------------------------------
 ### DEVELOPER  ---------------------------------------------------------------
@@ -212,7 +210,7 @@ USER root
 # Install Supervisor
 RUN /usr/bin/yum install -y supervisor
 ADD etc/supervisord.d /etc/supervisord.d
-EXPOSE 9001
+#EXPOSE 9001
 
 # Command that will run when the server starts
 USER root
