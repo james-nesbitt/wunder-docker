@@ -1,4 +1,4 @@
-FROM       jamesnesbitt/wunder-singleton
+FROM       jamesnesbitt/wunder-lampstackplusdev
 MAINTAINER james.nesbitt@wunderkraut.com
 
 # Volume for the web-root
