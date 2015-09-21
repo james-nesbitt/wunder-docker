@@ -11,7 +11,7 @@ RUN /usr/bin/yum install -y openssl tar git
 RUN /usr/bin/yum install --assumeyes --verbose mariadb
 
 # Install PHP which will be used for drush
-RUN /usr/bin/yum install --assumeyes --verbose php-cli php-common \
+RUN /usr/bin/yum install --assumeyes --verbose php-cli php-opcache \
     php-pecl-apc php-pdo php-mysql php-pgsql php-pecl-mongo \
     php-ldap php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring \
     php-mcrypt php-xml php-pecl-yaml
