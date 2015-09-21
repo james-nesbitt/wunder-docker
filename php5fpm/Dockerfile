@@ -4,10 +4,10 @@ MAINTAINER  james.nesbitt@wunderkraut.com
 ### PHP-FPM -------------------------------------------------------------------
 
 # Install php-fpm (libX11 and libX11-common come with php-gd)
-RUN /usr/bin/yum install --assumeyes --verbose php-fpm php-common \
-    php-pecl-apc php-pdo php-mysql php-pgsql php-pecl-mongo \
+RUN /usr/bin/yum install --assumeyes --verbose \
+    php-fpm php-opcache php-pecl-apc php-pdo php-mysql php-pgsql php-pecl-mongo \
     php-ldap php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring \
-    php-mcrypt php-xml php-pecl-yaml php-suhosin
+    php-mcrypt php-xml php-pecl-yaml php-twig php-twig-ctwig php-pecl-uploadprogress php-suhosin
 
 # Install blackfire
 ADD etc/yum.repos.d/blackfire.repo /etc/yum.repos.d/blackfire.repo
