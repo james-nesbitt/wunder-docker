@@ -81,7 +81,7 @@ ADD etc/yum.repos.d/remi.repo /etc/yum.repos.d/remi.repo
 RUN /usr/bin/yum install --assumeyes --verbose \
     php-fpm php-opcache php-pecl-apc php-pdo php-mysql php-pgsql php-pecl-mongo \
     php-ldap php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring \
-    php-mcrypt php-xml php-pecl-yaml php-twig php-twig-ctwig 
+    php-mcrypt php-xml php-pecl-yaml php-twig php-twig-ctwig php-pecl-uploadprogress
 
 # make sure that the nginx user, created, has access to app user files
 # nginx:x:999:999:Nginx web server:/var/lib/nginx:/sbin/nologin
@@ -89,6 +89,7 @@ RUN /usr/bin/mkdir -p /app/log/php-fpm && \
     /usr/bin/chown nginx:app /app/log/php-fpm
 
 # Override some of the default php-fpm settings with our own.
+ADD etc/php.ini /etc/php.ini
 ADD etc/php-fpm.d/www.conf /etc/php-fpm.d/www.conf
 ADD etc/php-fpm.conf /etc/php-fpm.conf
 
@@ -175,6 +176,9 @@ USER app
 # Install DRUSH, which is a requiremnt for platform
 RUN composer global require drush/drush:dev-master
 RUN composer global require drush/config-extra
+
+# Install Drupal console
+RUN cd /app/bin && curl -LSs http://drupalconsole.com/installer | php && mv console.phar drupal
 
 # Install platform.sh cli
 RUN composer global require platformsh/cli:@stable
