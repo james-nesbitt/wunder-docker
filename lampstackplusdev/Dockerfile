@@ -1,10 +1,13 @@
-FROM       jamesnesbitt/wunder-fullstack
+FROM       jamesnesbitt/wunder-lampstackplus
 MAINTAINER james.nesbitt@wunderkraut.com
 
 ### DEVELOPER  ---------------------------------------------------------------
 
 # Install some tools that are usefull for a developer
-RUN /usr/bin/yum install -y openssl tar git zsh sudo vim
+RUN /usr/bin/yum --assumeyes --verbose install openssl tar git zsh sudo vim
+
+# Get XDebug into the php server
+RUN /usr/bin/yum --assumeyes --verbose install php-xdebug
 
 # Set up some stuff for the app user
 RUN /usr/bin/echo "app        ALL=(ALL)       NOPASSWD: ALL" > /etc/sudoers.d/app
