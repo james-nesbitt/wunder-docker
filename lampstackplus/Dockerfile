@@ -61,7 +61,8 @@ RUN /usr/bin/mkdir -p /app/log/nginx && \
     /usr/bin/chmod -R ug+rwX /app/log/nginx
 
 # make sure that the nginx user, created, has access to app user files
-RUN /usr/bin/gpasswd -a nginx app
+# (ftp, user groups are required for typical cases like OSX, Ubuntu)
+RUN /sbin/usermod -a -G ftp -G users -G app nginx
 
 # As a command run the nginx server in foreground mode.
 # IF nginx.conf does not have it, add this: "-g 'daemon off'"
