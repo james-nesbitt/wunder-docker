@@ -36,6 +36,14 @@ RUN cd /app/bin && curl -LSs http://drupalconsole.com/installer | php && mv cons
 RUN composer global require platformsh/cli:@stable
 # RUN composer global require "commerceguys/platform-cli=1.*"
 
+# Set up some folders for the tools that we just used
+RUN /usr/bin/mkdir /app/.platformsh && \
+    /usr/bin/chown -R app:app /app/.platformsh && \
+    /usr/bin/mkdir /app/.drush && \
+    /usr/bin/chown -R app:app /app/.drush && \
+    /usr/bin/mkdir /app/.ssh && \
+    /usr/bin/chown -R app:app /app/.ssh
+
 # Some usefull env variables
 ENV TERM=xterm
 
