@@ -111,6 +111,10 @@ RUN /bin/mkdir -p /var/run/blackfire && \
 # Enable the blackfire php agent
 RUN /usr/bin/sed -i "s,unix:///var/run/blackfire/agent.sock,tcp://blackfire.app:8707," /etc/php.d/zz-blackfire.ini
 
+# These ENV vars can be used to configure the server
+ENV BLACKFIRE_SERVER_ID %BLACKFIRE_SERVER_ID
+ENV BLACKFIRE_SERVER_TOKEN %BLACKFIRE_SERVER_TOKEN
+
 #ENTRYPOINT ["blackfire-agent"]
 #CMD ["--socket", "tcp://0.0.0.0:8707", "--config", "/dev/null"]
 #EXPOSE 8707
