@@ -22,18 +22,20 @@ RUN /usr/bin/mysql_install_db --basedir=/usr --datadir=/var/lib/mysql --user=mys
 
 # Initial db setup
 # - Secure the db, leaving a lame root password, that can be changed in sub images, or in containers
+#      (now leaving the root password as blank)
 # - Kill the anonymous users
 # - Kill off the demo database
-# - Add our custom project DB
-# - Grant needed privileges on our needed project DB
+# - Add our custom app DB
+# - Grant needed privileges on our needed app DB
 # - Make our changes take effect
 RUN (/usr/bin/mysqld_safe &) && sleep 5 && \
-   mysql -uroot -e "UPDATE mysql.user SET Password=PASSWORD('RESETME') WHERE User='root'" && \
    mysql -uroot -e "DELETE FROM mysql.user WHERE User=''" && \
    mysql -uroot -e "DROP DATABASE test" && \
-   mysql -uroot -e "CREATE DATABASE project" && \
-   mysql -uroot -e "GRANT ALL on project.* to project IDENTIFIED BY \"project\"" && \
+   mysql -uroot -e "CREATE DATABASE app" && \
+   mysql -uroot -e "GRANT ALL on app.* to app IDENTIFIED BY \"app\"" && \
    mysql -uroot -e "FLUSH PRIVILEGES"
+
+# REMOVE ROOT PASSWORD: mysql -uroot -e "UPDATE mysql.user SET Password=PASSWORD('RESETME') WHERE User='root'"
 
 # AS a command, run the mariadb server, and expose the 3306 port for TCP connections
 #ENTRYPOINT ["/usr/bin/mysqld_safe"]
@@ -81,7 +83,7 @@ ADD etc/yum.repos.d/remi.repo /etc/yum.repos.d/remi.repo
 # Install php-fpm
 RUN /usr/bin/yum install --assumeyes --verbose \
     php-fpm php-opcache php-pecl-apc php-pdo php-mysql php-pgsql php-pecl-mongo \
-    php-ldap php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring \
+    php-ldap php-sqlite php-pecl-memcache php-pecl-memcached memcached php-gd php-mbstring \
     php-mcrypt php-xml php-pecl-yaml php-twig php-twig-ctwig php-pecl-uploadprogress
 
 # make sure that the nginx user, created, has access to app user files
@@ -91,8 +93,11 @@ RUN /usr/bin/mkdir -p /app/log/php-fpm && \
 
 # Override some of the default php-fpm settings with our own.
 ADD etc/php.ini /etc/php.ini
-ADD etc/php-fpm.d/www.conf /etc/php-fpm.d/www.conf
 ADD etc/php-fpm.conf /etc/php-fpm.conf
+ADD etc/php-fpm.d/www.conf /etc/php-fpm.d/www.conf
+
+# Add some php extension configuraiton overrides
+ADD etc/php.d/40-apcu.ini /etc/php.d/40-apcu.ini
 
 # Start the PHP-FPM service, and expose the 9000 port for TCP connections
 #ENTRYPOINT ["/usr/sbin/php-fpm"]
@@ -108,8 +113,8 @@ RUN /usr/bin/yum install -y install pygpgme blackfire-agent blackfire-php
 RUN /bin/mkdir -p /var/run/blackfire && \
     /bin/mkdir -p /var/log/blackfire
 
-# Enable the blackfire php agent
-RUN /usr/bin/sed -i "s,unix:///var/run/blackfire/agent.sock,tcp://blackfire.app:8707," /etc/php.d/zz-blackfire.ini
+# Enable the blackfire php agent php extension
+ADD etc/php.d/99-blackfire.ini /etc/php.d/99-blackfire.ini
 
 # These ENV vars can be used to configure the server
 ENV BLACKFIRE_SERVER_ID %BLACKFIRE_SERVER_ID
