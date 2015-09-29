@@ -10,7 +10,7 @@ ADD etc/yum.repos.d/remi.repo /etc/yum.repos.d/remi.repo
 
 # Install php-fpm
 RUN /usr/bin/yum install --assumeyes --verbose \
-    php-fpm php-opcache php-pecl-apc php-pdo php-mysql php-pgsql php-pecl-mongo \
+    php-fpm php-opcache php-pecl-apcu php-pdo php-mysql php-pgsql php-pecl-mongo \
     php-ldap php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring \
     php-mcrypt php-xml php-pecl-yaml php-twig php-twig-ctwig php-pecl-uploadprogress
 
@@ -27,9 +27,12 @@ RUN /usr/sbin/adduser --home-dir /var/lib/nginx --uid 999 --user-group --shell /
     /usr/bin/chown nginx:app /app/log/php-fpm
 
 # Override some of the default php-fpm settings with our own.
-ADD etc/php-fpm.d/www.conf /etc/php-fpm.d/www.conf
 ADD etc/php.ini /etc/php.ini
 ADD etc/php-fpm.conf /etc/php-fpm.conf
+ADD etc/php-fpm.d/www.conf /etc/php-fpm.d/www.conf
+
+# Add some php extension configuraiton overrides
+ADD etc/php.d/40-apcu.ini /etc/php.d/40-apcu.ini
 
 # Start the PHP-FPM service, and expose the 9000 port for TCP connections
 ENTRYPOINT ["/usr/sbin/php-fpm"]
