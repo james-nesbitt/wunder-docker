@@ -114,7 +114,7 @@ RUN /bin/mkdir -p /var/run/blackfire && \
     /bin/mkdir -p /var/log/blackfire
 
 # Enable the blackfire php agent php extension
-ADD etc/php.d/99-blackfire.ini /etc/php.d/99-blackfire.ini
+ADD etc/php.d/zz-blackfire.ini /etc/php.d/zz-blackfire.ini
 
 # These ENV vars can be used to configure the server
 ENV BLACKFIRE_SERVER_ID %BLACKFIRE_SERVER_ID
