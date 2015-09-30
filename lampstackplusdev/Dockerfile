@@ -35,7 +35,7 @@ RUN composer global require drush/drush:dev-master drush/config-extra
 RUN composer global require drupal/console
 # RUN cd /app/bin && curl -LSs http://drupalconsole.com/installer | php && mv console.phar drupal
 
-# Install platform.sh cli (CONFLICTS WITH DRUPAL CONSOLE)
+# Install platform.sh cli
 RUN composer global require platformsh/cli:@stable
 # RUN composer global require "commerceguys/platform-cli=1.*"
 
