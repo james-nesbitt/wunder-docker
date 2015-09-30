@@ -32,7 +32,7 @@ ENV PATH /app/bin:/app/.composer/vendor/bin:/usr/local/sbin:/usr/local/bin:/usr/
 RUN composer global require drush/drush:dev-master drush/config-extra
 
 # Install Drupal console
-RUN composer global require --optimize-autoloader --update-with-dependencies drupal/console
+RUN composer global require drupal/console
 # RUN cd /app/bin && curl -LSs http://drupalconsole.com/installer | php && mv console.phar drupal
 
 # Install platform.sh cli (CONFLICTS WITH DRUPAL CONSOLE)
