@@ -9,7 +9,10 @@ RUN /usr/bin/yum --assumeyes --verbose install openssl tar git zsh sudo vim
 # Get XDebug into the php server
 RUN /usr/bin/yum --assumeyes --verbose install php-xdebug
 
-# Set up some stuff for the app user
+# override the default php.d xdebug.ini
+ADD etc/php.d/15-xdebug.ini /etc/php.d/15-xdebug.ini 
+
+# Allow passwordless sudo for the app user
 RUN /usr/bin/echo "app        ALL=(ALL)       NOPASSWD: ALL" > /etc/sudoers.d/app
 
 # Install nodejs and npm, which gets used for lots of stuff with SASS/SCSS
@@ -26,11 +29,11 @@ USER app
 ENV PATH /app/bin:/app/.composer/vendor/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # Install DRUSH, which is a requiremnt for platform
-RUN composer global require drush/drush:dev-master
-RUN composer global require drush/config-extra
+RUN composer global require drush/drush:dev-master drush/config-extra
 
 # Install Drupal console
-RUN cd /app/bin && curl -LSs http://drupalconsole.com/installer | php && mv console.phar drupal
+RUN composer global require drupal/console
+# RUN cd /app/bin && curl -LSs http://drupalconsole.com/installer | php && mv console.phar drupal
 
 # Install platform.sh cli
 RUN composer global require platformsh/cli:@stable
@@ -70,14 +73,3 @@ RUN /usr/sbin/usermod -s /bin/zsh app && \
 #CMD ["/bin/zsh"]
 
 ### /James Developer ---------------------------------------------------------
-### Management ---------------------------------------------------------------
-
-# This is the ending of the fullstack image, but we add it again here
-# to make it clear that this image is managed using supervisor
-
-USER root
-
-# Command that will run when the server starts
-CMD ["/usr/bin/supervisord", "--nodaemon", "--configuration", "/etc/supervisord.conf"]
-
-### /Management --------------------------------------------------------------
