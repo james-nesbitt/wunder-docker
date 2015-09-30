@@ -7,4 +7,5 @@
 
 # this is read by the standalone daemon and embedded servers
 [server]
+max_allowed_packet = 64M
 
