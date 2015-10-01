@@ -1,7 +1,8 @@
 FROM       jamesnesbitt/wunder-lampstackplusdev
 MAINTAINER james.nesbitt@wunderkraut.com
 
-RUN usermod -a -G ftp nginx
+RUN /usr/sbin/usermod -a -G ftp nginx
+RUN /usr/sbin/usermod -a -G games nginx
 
 # Volume for the web-root
 VOLUME /app/www
