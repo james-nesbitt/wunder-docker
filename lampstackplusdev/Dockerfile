@@ -19,6 +19,14 @@ RUN /usr/bin/echo "app        ALL=(ALL)       NOPASSWD: ALL" > /etc/sudoers.d/ap
 RUN /usr/bin/yum install --assumeyes --verbose nodejs npm
 RUN /usr/bin/npm install gulp -g
 
+# Install mailcatcher
+RUN /usr/bin/yum -y install gcc gcc-c++
+RUN /usr/bin/yum -y install sqlite-devel ruby-devel
+RUN /usr/bin/gem install mailcatcher
+ADD etc/php.d/yy-mailcatcher.ini /etc/php.d/yy-mailcatcher.ini
+ADD etc/supervisord.d/mailcatcher.ini /etc/supervisord.d/mailcatcher.ini
+EXPOSE 1080
+
 # Install composer which will be used to install drush
 RUN /usr/bin/curl -sS https://getcomposer.org/installer | php -- --filename=composer --install-dir=/usr/local/bin
 
@@ -28,7 +36,7 @@ USER app
 # Add composer paths and app/bin to path
 ENV PATH /app/bin:/app/.composer/vendor/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
-# Install DRUSH, which is a requiremnt for platform
+# Install DRUSH, which is a requirement for platform
 RUN composer global require drush/drush:dev-master drush/config-extra
 
 # Install Drupal console
