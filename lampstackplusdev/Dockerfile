@@ -74,6 +74,12 @@ ADD .zshrc /app/.zshrc
 
 USER root
 
+# Add the nginx user to various groups that the user may be a part of
+#  - on OSX users are typically in the staff group, which translates into
+#  - the centos ftp group.  This is behaviour from using boot2docker
+RUN /usr/sbin/usermod -a -G ftp,games nginx
+
+# Change the default shell to zsh, and add a nice zsh prompt
 RUN /usr/sbin/usermod -s /bin/zsh app && \
     chown -R app:app /app/.zshrc /app/.oh-my-zsh
 
