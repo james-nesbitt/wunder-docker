@@ -69,7 +69,7 @@ ENV TERM=xterm
 USER app
 
 # Make the app user use the zsh shell with oh-my-zsh installed
-ADD .oh-my-zsh /app/.oh-my-zsh
+#ADD .oh-my-zsh /app/.oh-my-zsh
 ADD .zshrc /app/.zshrc
 
 USER root
