@@ -22,7 +22,7 @@ RUN /usr/bin/sed -i "s,unix:///var/run/blackfire/agent.sock,tcp://blackfire.app:
 # make sure that the nginx user, created, has access to app user files
 # nginx:x:999:999:Nginx web server:/var/lib/nginx:/sbin/nologin
 RUN /usr/sbin/adduser --home-dir /var/lib/nginx --uid 999 --user-group --shell /bin/nologin --password "`openssl rand -base64 32 | openssl passwd -1 -stdin`" --comment "Nginx web server" nginx && \
-    /usr/bin/gpasswd -a nginx app && \
+    /usr/sbin/usermod -a -G app,ftp,games nginx && \
     /usr/bin/mkdir -p /app/log/php-fpm && \
     /usr/bin/chown nginx:app /app/log/php-fpm
 
@@ -32,6 +32,7 @@ ADD etc/php-fpm.conf /etc/php-fpm.conf
 ADD etc/php-fpm.d/www.conf /etc/php-fpm.d/www.conf
 
 # Add some php extension configuraiton overrides
+ADD etc/php.d/01-defaultdatetime.ini /etc/php.d/01-defaultdatetime.ini
 ADD etc/php.d/40-apcu.ini /etc/php.d/40-apcu.ini
 
 # Start the PHP-FPM service, and expose the 9000 port for TCP connections
