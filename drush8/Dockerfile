@@ -22,10 +22,7 @@ RUN /usr/bin/yum --assumeyes --verbose install MariaDB-client
 RUN /usr/bin/curl -sS https://getcomposer.org/installer | php -- --filename=composer --install-dir=/usr/local/bin
 
 # Install Drush
-RUN /usr/bin/yum --assumeyes --verbose install git
-RUN /usr/bin/git clone -b master https://github.com/drush-ops/drush.git /usr/local/src/drush && \
-    /usr/bin/ln -s /usr/local/src/drush/drush /usr/local/bin/drush && \
-    /usr/local/bin/composer --working-dir=/usr/local/src/drush  install
+RUN /usr/local/bin/composer global require drush/drush:dev-master
 
 # add drush settings & aliases
 RUN /usr/bin/mkdir /etc/drush
@@ -37,7 +34,7 @@ USER app
 # set up some env variables to make using easier.
 ENV TERM="xterm"
 
-ENTRYPOINT ["/usr/local/bin/drush"]
+ENTRYPOINT ["/app/.composer/vendor/bin/drush"]
 CMD ["status"]
 
 ### /DRUSH ---------------------------------------------------------------
