@@ -8,7 +8,7 @@ RUN /usr/bin/yum --assumeyes --verbose install tar gunzip git
 
 # Install PHP
 RUN /usr/bin/yum install --assumeyes --verbose \
-    php-fpm php-opcache php-pecl-apc php-pdo php-mysql php-pgsql php-pecl-mongo \
+    php-cli php-opcache php-pecl-apc php-pdo php-mysql php-pgsql php-pecl-mongo \
     php-ldap php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring \
     php-mcrypt php-xml php-pecl-yaml php-twig php-twig-ctwig php-pecl-uploadprogress
 
@@ -22,24 +22,21 @@ RUN /usr/bin/mkdir /composer && \
 # Everything else is run as the platform user
 USER app
 
-# Make sure that the composer items are in path
-ENV COMPOSER_HOME /composer
-ENV PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/composer/vendor/bin"
+# Add composer paths and app/bin to path
+ENV PATH /app/bin:/app/.composer/vendor/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # Install DRUSH, which is a requiremnt for platform
-RUN /usr/local/bin/composer global require drush/drush:dev-master
-ENV PLATFORMSH_CLI_DRUSH=/composer/vendor/bin/drush
-# RUN /usr/local/bin/composer global require drush/config-extra
+RUN /usr/local/bin/composer global require drush/drush:dev-master drush/config-extra
+ENV PLATFORMSH_CLI_DRUSH=/app/.composer/vendor/bin/drush
 
 # Install platform.sh cli
-RUN /usr/local/bin/composer global require platformsh/cli:@stable
-# RUN /usr/local/bin/composer global require "commerceguys/platform-cli=1.*"
+RUN /usr/local/bin/composer global require platformsh/cli
 
 # Some additional Platform ENV Variables
 ENV PLATFORMSH_CLI_DEBUG=0
 ENV PLATFORMSH_CLI_DISABLE_CACHE=0
 
-ENTRYPOINT ["/composer/vendor/bin/platform"]
+ENTRYPOINT ["/app/.composer/vendor/bin/platform"]
 CMD ["--shell"]
 
 ### /PLATFORMSH ---------------------------------------------------------------
