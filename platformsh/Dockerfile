@@ -6,18 +6,11 @@ MAINTAINER  james.nesbitt@wunderkraut.com
 # Install some base tools
 RUN /usr/bin/yum --assumeyes --verbose install tar gunzip git
 
-# Prepare to use the remi repo for PHP: our .repo file has certain repos enabled=1
-ADD root/remi-release-7.rpm /root/remi-release-7.rpm
-RUN /usr/bin/rpm -Uvh /root/remi-release-7.rpm
-# Overwrite the default remi repos, to enable the remi and remi7 by default
-ADD etc/yum.repos.d/remi.repo /etc/yum.repos.d/remi.repo
-ADD etc/yum.repos.d/remi-php70.repo /etc/yum.repos.d/remi-php70.repo
-
-# Install php-fpm
+# Install PHP
 RUN /usr/bin/yum install --assumeyes --verbose \
-    php-cli php-opcache php-pdo php-mysql \
-    php-gd php-mbstring php-mcrypt php-xml php-soap php-json \
-    php-pecl-apcu php-pecl-geoip
+    php-cli php-opcache php-pecl-apc php-pdo php-mysql php-pgsql php-pecl-mongo \
+    php-ldap php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring \
+    php-mcrypt php-xml php-pecl-yaml php-twig php-twig-ctwig php-pecl-uploadprogress
 
 # Install Composer
 RUN /usr/bin/curl -sS https://getcomposer.org/installer | php -- --filename=composer --install-dir=/usr/local/bin
@@ -29,7 +22,10 @@ RUN /usr/bin/mkdir /composer && \
 # Everything else is run as the platform user
 USER app
 
-# Install DRUSH, which is a requiremnet for platform
+# Add composer paths and app/bin to path
+ENV PATH /app/bin:/app/.composer/vendor/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# Install DRUSH, which is a requiremnt for platform
 RUN /usr/local/bin/composer global require drush/drush:dev-master drush/config-extra
 ENV PLATFORMSH_CLI_DRUSH=/app/.composer/vendor/bin/drush
 
