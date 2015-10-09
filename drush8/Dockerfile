@@ -8,7 +8,6 @@ ADD root/remi-release-7.rpm /root/remi-release-7.rpm
 RUN /usr/bin/rpm -Uvh /root/remi-release-7.rpm
 ADD etc/yum.repos.d/remi.repo /etc/yum.repos.d/remi.repo
 ADD etc/yum.repos.d/remi-php70.repo /etc/yum.repos.d/remi-php70.repo
-ADD etc/yum.repos.d/mariadb.repo etc/yum.repos.d/mariadb.repo
 
 # Install php-fpm
 RUN /usr/bin/yum install --assumeyes --verbose \
@@ -16,16 +15,14 @@ RUN /usr/bin/yum install --assumeyes --verbose \
     php-opcache php-pecl-uploadprogress
 
 # Install MariaDB
+ADD etc/yum.repos.d/mariadb.repo etc/yum.repos.d/mariadb.repo
 RUN /usr/bin/yum --assumeyes --verbose install MariaDB-client
 
 # Install composer which will be used to install drush
 RUN /usr/bin/curl -sS https://getcomposer.org/installer | php -- --filename=composer --install-dir=/usr/local/bin
 
 # Install Drush
-RUN /usr/bin/yum --assumeyes --verbose install git
-RUN /usr/bin/git clone -b master https://github.com/drush-ops/drush.git /usr/local/src/drush && \
-    /usr/bin/ln -s /usr/local/src/drush/drush /usr/local/bin/drush && \
-    /usr/local/bin/composer --working-dir=/usr/local/src/drush  install
+RUN /usr/local/bin/composer global require drush/drush:dev-master
 
 # add drush settings & aliases
 RUN /usr/bin/mkdir /etc/drush
@@ -37,7 +34,7 @@ USER app
 # set up some env variables to make using easier.
 ENV TERM="xterm"
 
-ENTRYPOINT ["/usr/local/bin/drush"]
+ENTRYPOINT ["/app/.composer/vendor/bin/drush"]
 CMD ["status"]
 
 ### /DRUSH ---------------------------------------------------------------
