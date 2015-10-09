@@ -12,7 +12,7 @@ ADD etc/yum.repos.d/remi-php70.repo /etc/yum.repos.d/remi-php70.repo
 
 # Install php-fpm
 RUN /usr/bin/yum install --assumeyes --verbose \
-    php-fpm php-opcache php-fpm php-pdo php-mysql php-pgsql php-ldap \
+    php-fpm php-opcache php-pdo php-mysql php-pgsql php-ldap \
     php-gd php-mbstring php-mcrypt php-xml php-soap php-json \
     php-pecl-uploadprogress php-pecl-apcu php-pecl-geoip
 
