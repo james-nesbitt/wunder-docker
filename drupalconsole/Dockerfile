@@ -3,9 +3,6 @@ MAINTAINER james.nesbitt@wunderkraut.com
 
 ### DRUPALCONSOLE ----------------------------------------------------------
 
-# Install some tools that are usefull for a developer
-RUN /usr/bin/yum --assumeyes --verbose install openssl tar git
-
 # Install MariaDB
 ADD etc/yum.repos.d/mariadb.repo etc/yum.repos.d/mariadb.repo
 RUN /usr/bin/yum --assumeyes --verbose install MariaDB-client
@@ -14,12 +11,15 @@ RUN /usr/bin/yum --assumeyes --verbose install MariaDB-client
 ADD root/remi-release-7.rpm /root/remi-release-7.rpm
 RUN /usr/bin/rpm -Uvh /root/remi-release-7.rpm
 ADD etc/yum.repos.d/remi.repo /etc/yum.repos.d/remi.repo
+ADD etc/yum.repos.d/remi-php70.repo /etc/yum.repos.d/remi-php70.repo
 
 # Install php-fpm
 RUN /usr/bin/yum install --assumeyes --verbose \
-    php-fpm php-opcache php-pecl-apcu php-pdo php-mysql php-pgsql php-pecl-mongo \
-    php-ldap php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring \
-    php-mcrypt php-xml php-pecl-yaml php-twig php-twig-ctwig php-pecl-uploadprogress
+    php-cli php-pdo php-mysql php-pgsql php-ldap php-gd php-mbstring php-mcrypt php-xml \
+    php-opcache php-pecl-uploadprogress
+
+# Install some tools that are used for composer and user handling
+RUN /usr/bin/yum --assumeyes --verbose install openssl tar git
 
 # Add some php extension configuraiton overrides
 ADD etc/php.d/01-defaultdatezone.ini /etc/php.d/01-defaultdatezone.ini
@@ -34,7 +34,7 @@ ADD etc/php.d/zz-blackfire.ini /etc/php.d/zz-blackfire.ini
 # Install composer which will be used to install drush
 RUN /usr/bin/curl -sS https://getcomposer.org/installer | php -- --filename=composer --install-dir=/usr/local/bin
 
-# make sure that the nginx user, created, has access to app user files
+# make sure that the nginx user is created, and has access to app user files
 # nginx:x:999:999:Nginx web server:/var/lib/nginx:/sbin/nologin
 RUN /usr/sbin/adduser --home-dir /var/lib/nginx --uid 999 --user-group --shell /bin/nologin --password "`openssl rand -base64 32 | openssl passwd -1 -stdin`" --comment "Nginx web server" nginx && \
     /usr/bin/gpasswd -a nginx app
