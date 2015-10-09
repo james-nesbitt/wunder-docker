@@ -8,7 +8,6 @@ ADD root/remi-release-7.rpm /root/remi-release-7.rpm
 RUN /usr/bin/rpm -Uvh /root/remi-release-7.rpm
 ADD etc/yum.repos.d/remi.repo /etc/yum.repos.d/remi.repo
 ADD etc/yum.repos.d/remi-php70.repo /etc/yum.repos.d/remi-php70.repo
-ADD etc/yum.repos.d/mariadb.repo etc/yum.repos.d/mariadb.repo
 
 # Install php-fpm
 RUN /usr/bin/yum install --assumeyes --verbose \
@@ -16,6 +15,7 @@ RUN /usr/bin/yum install --assumeyes --verbose \
     php-opcache php-pecl-uploadprogress
 
 # Install MariaDB
+ADD etc/yum.repos.d/mariadb.repo etc/yum.repos.d/mariadb.repo
 RUN /usr/bin/yum --assumeyes --verbose install MariaDB-client
 
 # Install composer which will be used to install drush
