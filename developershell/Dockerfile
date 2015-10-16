@@ -25,7 +25,7 @@ ADD etc/yum.repos.d/remi-php70.repo /etc/yum.repos.d/remi-php70.repo
 ADD etc/yum.repos.d/mariadb.repo etc/yum.repos.d/mariadb.repo
 RUN /usr/bin/yum --assumeyes --verbose install MariaDB-client
 
-# Install php-fpm
+# Install php-fpm - currently php7-rc5
 RUN /usr/bin/yum install --assumeyes --verbose \
     php-cli php-opcache php-fpm php-pdo php-mysql php-pgsql php-ldap \
     php-gd php-mbstring php-mcrypt php-xml php-soap php-json \

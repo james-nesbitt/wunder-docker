@@ -9,6 +9,7 @@ RUN /usr/bin/rpm -Uvh /root/remi-release-7.rpm
 ADD etc/yum.repos.d/remi.repo /etc/yum.repos.d/remi.repo
 ADD etc/yum.repos.d/remi-php70.repo /etc/yum.repos.d/remi-php70.repo
 
+# Install php-cli - currently php7-rc5
 RUN /usr/bin/yum install --assumeyes --verbose \
     php-cli php-opcache php-pdo php-mysql php-pgsql php-ldap \
     php-gd php-mbstring php-mcrypt php-xml php-soap php-json \
