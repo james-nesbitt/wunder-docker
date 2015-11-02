@@ -10,9 +10,10 @@ ADD etc/yum.repos.d/remi.repo /etc/yum.repos.d/remi.repo
 
 # Install php-fpm
 RUN /usr/bin/yum install --assumeyes --verbose \
-    php-fpm php-opcache php-pecl-apcu php-pdo php-mysql php-pgsql php-pecl-mongo \
-    php-ldap php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring \
-    php-mcrypt php-xml php-pecl-yaml php-twig php-twig-ctwig php-pecl-uploadprogress
+    php-fpm php-opcache php-pdo php-mysql php-pgsql php-pecl-mongo php-sqlite \
+    php-ldap php-gd php-mbstring php-mcrypt php-xml php-twig php-twig-ctwig \
+    php-pecl-apcu php-pecl-memcache php-pecl-yaml php-pecl-uploadprogress \
+    php-pecl-xdebug php-pecl-zip
 
 # Install blackfire
 ADD etc/yum.repos.d/blackfire.repo /etc/yum.repos.d/blackfire.repo
