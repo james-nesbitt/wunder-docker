@@ -64,7 +64,7 @@ RUN /usr/bin/mkdir -p /app/log/nginx && \
 
 # make sure that the nginx user, created, has access to app user files
 # (ftp, user groups are required for typical cases like OSX, Ubuntu)
-RUN /sbin/usermod -a -G ftp -G users -G app nginx
+RUN /sbin/usermod -a -G users,app,ftp,games nginx
 
 # As a command run the nginx server in foreground mode.
 # IF nginx.conf does not have it, add this: "-g 'daemon off'"
@@ -122,7 +122,7 @@ ENV BLACKFIRE_SERVER_ID %BLACKFIRE_SERVER_ID
 ENV BLACKFIRE_SERVER_TOKEN %BLACKFIRE_SERVER_TOKEN
 
 #ENTRYPOINT ["blackfire-agent"]
-#CMD ["--socket", "tcp://0.0.0.0:8707", "--config", "/dev/null"]
+#CMD ["--config", "/dev/null"]
 #EXPOSE 8707
 
 ### /Blackfire --------------------------------------------------------------
