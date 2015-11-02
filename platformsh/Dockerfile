@@ -9,10 +9,11 @@ RUN /usr/bin/rpm -Uvh /root/remi-release-7.rpm
 ADD etc/yum.repos.d/remi.repo /etc/yum.repos.d/remi.repo
 ADD etc/yum.repos.d/remi-php70.repo /etc/yum.repos.d/remi-php70.repo
 
+# Install php-fpm - currently php7-rc6
 RUN /usr/bin/yum install --assumeyes --verbose \
-    php-cli php-opcache php-pdo php-mysql php-pgsql php-ldap \
-    php-gd php-mbstring php-mcrypt php-xml php-soap php-json \
-    php-pecl-uploadprogress php-pecl-apcu php-pecl-geoip
+    php-cli php-opcache php-pdo php-mysql php-pgsql \
+    php-ldap php-gd php-mbstring php-mcrypt php-xml \
+    php-pecl-apcu php-pecl-yaml php-pecl-uploadprogress php-pecl-zip
 
 # Add some php extension configuraiton overrides
 ADD etc/php.d/01-defaultdatezone.ini /etc/php.d/01-defaultdatezone.ini
