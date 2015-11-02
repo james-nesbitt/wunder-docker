@@ -8,7 +8,6 @@ RUN /usr/bin/yum --assumeyes --verbose install openssl tar git zsh sudo vim
 
 # Get XDebug into the php server
 RUN /usr/bin/yum --assumeyes --verbose install php-xdebug
-
 # override the default php.d xdebug.ini
 ADD etc/php.d/15-xdebug.ini /etc/php.d/15-xdebug.ini 
 
@@ -20,8 +19,7 @@ RUN /usr/bin/yum install --assumeyes --verbose nodejs npm
 RUN /usr/bin/npm install gulp -g
 
 # Install mailcatcher
-RUN /usr/bin/yum -y install gcc gcc-c++
-RUN /usr/bin/yum -y install sqlite-devel ruby-devel
+RUN /usr/bin/yum -y install gcc gcc-c++ sqlite-devel ruby-devel
 RUN /usr/bin/gem install mailcatcher
 ADD etc/php.d/yy-mailcatcher.ini /etc/php.d/yy-mailcatcher.ini
 ADD etc/supervisord.d/mailcatcher.ini /etc/supervisord.d/mailcatcher.ini
