@@ -29,7 +29,7 @@ RUN /usr/bin/yum --assumeyes --verbose install MariaDB-client
 RUN /usr/bin/yum install --assumeyes --verbose \
     php-cli php-opcache php-fpm php-pdo php-mysql php-pgsql php-ldap \
     php-gd php-mbstring php-mcrypt php-xml php-soap php-json \
-    php-pecl-apcu php-pecl-geoip
+    php-pecl-apcu php-pecl-geoip php-pecl-zip
 
 # Install composer which will be used to install drush
 RUN /usr/bin/curl -sS https://getcomposer.org/installer | php -- --filename=composer --install-dir=/usr/local/bin
