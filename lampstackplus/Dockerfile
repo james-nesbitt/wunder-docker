@@ -82,9 +82,10 @@ ADD etc/yum.repos.d/remi.repo /etc/yum.repos.d/remi.repo
 
 # Install php-fpm
 RUN /usr/bin/yum install --assumeyes --verbose \
-    php-fpm php-opcache php-pecl-apc php-pdo php-mysql php-pgsql php-pecl-mongo \
-    php-ldap php-sqlite php-pecl-memcache php-pecl-memcached memcached php-gd php-mbstring \
-    php-mcrypt php-xml php-pecl-yaml php-twig php-twig-ctwig php-pecl-uploadprogress
+    php-fpm php-opcache php-pecl-apcu php-pdo php-mysql php-pgsql php-pecl-mongo \
+    php-ldap php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring \
+    php-mcrypt php-xml php-pecl-yaml php-twig php-twig-ctwig php-pecl-uploadprogress \
+    php-pecl-xdebug php-pecl-zip
 
 # make sure that the nginx user, created, has access to app user files
 # nginx:x:999:999:Nginx web server:/var/lib/nginx:/sbin/nologin
