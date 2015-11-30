@@ -27,7 +27,7 @@ RUN /usr/bin/yum --assumeyes --verbose install MariaDB-client
 RUN /usr/bin/yum --assumeyes --verbose install openssl tar git
 
 # Install composer which will be used to install drush
-RUN /usr/bin/curl -sS https://getcomposer.org/installer | php -- --filename=composer --install-dir=/usr/local/bin
+RUN /usr/bin/yum install --assumeyes --verbose composer
 
 # make sure that the nginx user is created, and has access to app user files
 # nginx:x:999:999:Nginx web server:/var/lib/nginx:/sbin/nologin
@@ -49,7 +49,7 @@ USER app
 ENV PATH /app/bin:/app/.composer/vendor/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # Install DRUSH
-RUN /usr/local/bin/composer global require drush/drush:dev-master drush/config-extra
+RUN /usr/bin/composer global require drush/drush:dev-master drush/config-extra
 
 ENTRYPOINT ["/app/.composer/vendor/bin/drush"]
 CMD ["status"]

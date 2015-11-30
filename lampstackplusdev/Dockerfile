@@ -26,7 +26,7 @@ ADD etc/supervisord.d/mailcatcher.ini /etc/supervisord.d/mailcatcher.ini
 EXPOSE 1080
 
 # Install composer which will be used to install drush
-RUN /usr/bin/curl -sS https://getcomposer.org/installer | php -- --filename=composer --install-dir=/usr/local/bin
+RUN /usr/bin/yum install --assumeyes --verbose composer
 
 # Everything else is run as the platform user
 USER app
@@ -35,15 +35,15 @@ USER app
 ENV PATH /app/bin:/app/.composer/vendor/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # Install DRUSH, which is a requirement for platform
-RUN composer global require drush/drush:dev-master drush/config-extra
+RUN /usr/bin/composer global require drush/drush:dev-master drush/config-extra
 
 # Install Drupal console
-RUN composer global require drupal/console
+RUN /usr/bin/composer global require drupal/console
 # RUN cd /app/bin && curl -LSs http://drupalconsole.com/installer | php && mv console.phar drupal
 
 # Install platform.sh cli
-RUN composer global require platformsh/cli:@stable
-# RUN composer global require "commerceguys/platform-cli=1.*"
+RUN /usr/bin/composer global require platformsh/cli:@stable
+# RUN /usr/bin/composer global require "commerceguys/platform-cli=1.*"
 
 # Configure Platform CLI with this ENV var
 ENV PLATFORMSH_CLI_API_TOKEN %PLATFORMSH_CLI_API_TOKEN
