@@ -34,6 +34,7 @@ ADD etc/php-fpm.d/www.conf /etc/php-fpm.d/www.conf
 
 # Add some php extension configuraiton overrides
 ADD etc/php.d/01-defaultdatetime.ini /etc/php.d/01-defaultdatetime.ini
+ADD etc/php.d/15-xdebug.ini /etc/php.d/15-xdebug.ini
 ADD etc/php.d/40-apcu.ini /etc/php.d/40-apcu.ini
 
 # Start the PHP-FPM service, and expose the 9000 port for TCP connections
