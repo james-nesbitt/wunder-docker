@@ -18,9 +18,13 @@ RUN /usr/bin/yum --assumeyes --verbose install elasticsearch
 ENV ELASTICSEARCH_CLUSTER project
 ENV ELASTICSEARCH_NAME first
 
+# Expose the two ports that elastic search uses
+# REST API Port
+# Java API Port
+EXPOSE 9300
+EXPOSE 9200
+
 # Start the Redis service, and expose the 6379 port for TCP connections
-CMD ["/usr/share/elasticsearch/bin/elasticsearch"]
-EXPOSE 9300 # REST API Port
-EXPOSE 9200 # Java API Port
+ENTRYPOINT ["/usr/share/elasticsearch/bin/elasticsearch"]
 
 ### /ElasticSearch ------------------------------------------------------------------
