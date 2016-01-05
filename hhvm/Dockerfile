@@ -10,8 +10,8 @@ ADD etc/yum.repos.d/no1youknowz-hhvm-repo-epel-7.repo /etc/yum.repos.d/no1youkno
 RUN /usr/bin/yum --assumeyes --verbose install hhvm
 
 # make sure that the nginx user, created, has access to app user files
-# nginx:x:999:999:Nginx web server:/var/lib/nginx:/sbin/nologin
-RUN /usr/sbin/adduser --home-dir /var/lib/nginx --uid 999 --user-group --shell /bin/nologin --password "`openssl rand -base64 32 | openssl passwd -1 -stdin`" --comment "Nginx web server" nginx && \
+# nginx:x:499:499:Nginx web server:/var/lib/nginx:/sbin/nologin
+RUN /usr/sbin/adduser --home-dir /var/lib/nginx --uid 499 --user-group --shell /bin/nologin --password "`openssl rand -base64 32 | openssl passwd -1 -stdin`" --comment "Nginx web server" nginx && \
     /usr/bin/gpasswd -a nginx app && \
     /usr/bin/mkdir -p /var/run/hhvm && \
     /usr/bin/chown nginx:app /var/run/hhvm && \

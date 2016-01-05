@@ -21,9 +21,9 @@ ADD etc/php-fpm.conf /etc/php-fpm.conf
 ADD etc/php-fpm.d/www.conf /etc/php-fpm.d/www.conf
 
 # make sure that the nginx user, created, has access to app user files
-# nginx:x:999:999:Nginx web server:/var/lib/nginx:/sbin/nologin
-RUN /usr/sbin/adduser --home-dir /var/lib/nginx --uid 999 --user-group --shell /bin/nologin --password "`openssl rand -base64 32 | openssl passwd -1 -stdin`" --comment "Nginx web server" nginx && \
-    /usr/sbin/usermod -a -G app,ftp,games nginx
+# nginx:x:499:499:Nginx web server:/var/lib/nginx:/sbin/nologin
+RUN /usr/sbin/adduser --home-dir /var/lib/nginx --uid 499 --user-group --shell /bin/nologin --password "`openssl rand -base64 32 | openssl passwd -1 -stdin`" --comment "Nginx web server" nginx && \
+   /usr/sbin/usermod -a -G app,ftp,games nginx
 RUN /usr/bin/mkdir -p /app/log/php-fpm && \
     /usr/bin/chown nginx:app /app/log/php-fpm
 
