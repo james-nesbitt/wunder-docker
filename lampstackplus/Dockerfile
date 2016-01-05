@@ -88,7 +88,7 @@ RUN /usr/bin/yum install --assumeyes --verbose \
     php-pecl-xdebug php-pecl-zip
 
 # make sure that the nginx user, created, has access to app user files
-# nginx:x:999:999:Nginx web server:/var/lib/nginx:/sbin/nologin
+# nginx:x:499:499:Nginx web server:/var/lib/nginx:/sbin/nologin
 RUN /usr/bin/mkdir -p /app/log/php-fpm && \
     /usr/bin/chown nginx:app /app/log/php-fpm
 

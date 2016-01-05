@@ -15,8 +15,8 @@ RUN /usr/bin/yum install -y install pygpgme blackfire-php
 RUN /usr/bin/sed -i "s,unix:///var/run/blackfire/agent.sock,tcp://blackfire.app:8707," /etc/php.d/zz-blackfire.ini
 
 # make sure that the nginx user, created, has access to app user files
-# nginx:x:999:999:Nginx web server:/var/lib/nginx:/sbin/nologin
-RUN /usr/sbin/adduser --home-dir /var/lib/nginx --uid 999 --user-group --shell /bin/nologin --password "`openssl rand -base64 32 | openssl passwd -1 -stdin`" --comment "Nginx web server" nginx && \
+# nginx:x:499:499:Nginx web server:/var/lib/nginx:/sbin/nologin
+RUN /usr/sbin/adduser --home-dir /var/lib/nginx --uid 499 --user-group --shell /bin/nologin --password "`openssl rand -base64 32 | openssl passwd -1 -stdin`" --comment "Nginx web server" nginx && \
     /usr/bin/gpasswd -a nginx app && \
     /usr/bin/mkdir -p /app/log/php-fpm && \
     /usr/bin/chown nginx:app /app/log/php-fpm
