@@ -75,10 +75,12 @@ EXPOSE 80 443
 ### /NGINX -------------------------------------------------------------------
 ### PHP-FPM ------------------------------------------------------------------
 
+# Install the REMI repo : HOW NICE WOULD IT BE TO HAVE AN HTTPS ?!?
+RUN /usr/bin/rpm -Uvh http://rpms.remirepo.net/enterprise/remi-release-7.rpm
 # Prepare to use the remi repo for PHP: our .repo file has certain repos enabled=1
-ADD root/remi-release-7.rpm /root/remi-release-7.rpm
-RUN /usr/bin/rpm -Uvh /root/remi-release-7.rpm
+# Overwrite the default remi repos, to enable the remi and remi7 by default
 ADD etc/yum.repos.d/remi.repo /etc/yum.repos.d/remi.repo
+ADD etc/yum.repos.d/remi-php70.repo /etc/yum.repos.d/remi-php70.repo
 
 # Install php-fpm
 RUN /usr/bin/yum install --assumeyes --verbose \
