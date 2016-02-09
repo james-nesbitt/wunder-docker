@@ -10,6 +10,7 @@ RUN /usr/bin/rpm --verbose --import http://nginx.org/keys/nginx_signing.key
 # Install nginx (make it run as the nginx user)
 ADD etc/yum.repos.d/nginx.repo /etc/yum.repos.d/nginx.repo
 RUN /usr/bin/yum install --assumeyes --verbose nginx
+RUN /usr/bin/systemctl enable nginx.service
 
 ADD etc/nginx/nginx.conf /etc/nginx/nginx.conf
 ADD etc/nginx/conf.d /etc/nginx/conf.d
@@ -19,13 +20,11 @@ RUN /usr/bin/mkdir -p /app/log/nginx && \
     /usr/bin/chown -R nginx:nginx /app/log/nginx && \
     /usr/bin/chmod -R ug+rwX /app/log/nginx
 
-# make sure that the nginx user, created, has access to app user files
+# make sure that the nginx user, created during nginx install, has access to app user files
 RUN /usr/bin/gpasswd -a nginx app
 
-# As a command run the nginx server in foreground mode.
-# IF nginx.conf does not have it, add this: "-g 'daemon off'"
-ENTRYPOINT ["/usr/sbin/nginx"]
-CMD ["-c/etc/nginx/nginx.conf"]
 EXPOSE 80 443
+
+# This image is run using systemd /sbin/init
 
 ### /NGINX -------------------------------------------------------------------
