@@ -1,4 +1,4 @@
-FROM        centos
+FROM       jamesnesbitt/centos7systemd
 MAINTAINER james.nesbitt@wunderkraut.com
 
 ### WUNDER BASE --------------------------------------------------------------
@@ -29,6 +29,24 @@ RUN /sbin/groupadd --gid 1000 app && \
     /usr/sbin/adduser --no-create-home --home-dir /app --uid 1000 --gid 1000 --shell /bin/nologin --password "`openssl rand -base64 32 | openssl passwd -1 -stdin`" --comment "application login" app && \
     chown -R app:app /app
 
-CMD ["/bin/bash"] # Used just to prevent certain types of RemoteAPI failures
+# Set up to use systemd as a command
+ENV container docker
+RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == \
+    systemd-tmpfiles-setup.service ] || rm -f $i; done); \
+    rm -f /lib/systemd/system/multi-user.target.wants/*;\
+	rm -f /etc/systemd/system/*.wants/*;\
+	rm -f /lib/systemd/system/local-fs.target.wants/*; \
+	rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
+	rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
+	rm -f /lib/systemd/system/basic.target.wants/*;\
+	rm -f /lib/systemd/system/anaconda.target.wants/*;
+
+# include systemd needed Volumes
+VOLUME [ "/sys/fs/cgroup" ]
+VOLUME [ "/run" ]
+
+# by default use systemd PID1 process as an entrypoint
+ENTRYPOINT ["/usr/sbin/init"]
+CMD []
 
 ### WUNDER BASE -------------------------------------------------------------
