@@ -14,16 +14,20 @@ ADD etc/yum.repos.d/remi-php70.repo /etc/yum.repos.d/remi-php70.repo
 RUN /usr/bin/yum install --assumeyes --verbose \
     php-fpm php-opcache php-pdo php-mysql php-pgsql \
     php-ldap php-gd php-mbstring php-mcrypt php-xml \
-    php-pecl-apcu php-pecl-yaml php-pecl-uploadprogress php-pecl-zip
+    php-pecl-apcu php-pecl-yaml php-pecl-uploadprogress php-pecl-zip \
+    php-pecl-xdebug
 
 # Override some of the default php-fpm settings with our own.
 ADD etc/php-fpm.conf /etc/php-fpm.conf
 ADD etc/php-fpm.d/www.conf /etc/php-fpm.d/www.conf
 
-# Install blackfire
-ADD etc/yum.repos.d/blackfire.repo /etc/yum.repos.d/blackfire.repo
-RUN /usr/bin/yum install -y install pygpgme blackfire-php
-RUN /usr/bin/sed -i "s,unix:///var/run/blackfire/agent.sock,tcp://blackfire.app:8707," /etc/php.d/zz-blackfire.ini
+# Override some of the default php ini files
+ADD etc/php.d/15-xdebug.ini /etc/php.d/15-zxdebug.ini
+
+# Install blackfire - still doesn't work as the blackfire install script doesn't like our php7
+# ADD etc/yum.repos.d/blackfire.repo /etc/yum.repos.d/blackfire.repo
+# RUN /usr/bin/yum install -y install pygpgme blackfire-php
+# ADD etc/php.d/zz-blackfire.ini /etc/php.d/zz-blackfire.ini
 
 # make sure that the nginx user, created, has access to app user files
 # nginx:x:499:499:Nginx web server:/var/lib/nginx:/sbin/nologin
