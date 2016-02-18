@@ -22,7 +22,7 @@ ADD etc/php-fpm.conf /etc/php-fpm.conf
 ADD etc/php-fpm.d/www.conf /etc/php-fpm.d/www.conf
 
 # Override some of the default php ini files
-ADD etc/php.d/15-xdebug.ini /etc/php.d/15-zxdebug.ini
+ADD etc/php.d/15-xdebug.ini /etc/php.d/15-xdebug.ini
 
 # Install blackfire - still doesn't work as the blackfire install script doesn't like our php7
 # ADD etc/yum.repos.d/blackfire.repo /etc/yum.repos.d/blackfire.repo
