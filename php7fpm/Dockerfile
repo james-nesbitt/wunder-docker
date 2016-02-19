@@ -15,6 +15,8 @@ RUN /usr/bin/yum install --assumeyes --verbose \
     php-fpm php-opcache php-pdo php-mysql php-pgsql \
     php-ldap php-gd php-mbstring php-mcrypt php-xml \
     php-pecl-apcu php-pecl-yaml php-pecl-uploadprogress php-pecl-zip
+# Start the PHP-FPM service
+RUN /usr/bin/systemctl enable php-fpm.service    
 
 # Override some of the default php-fpm settings with our own.
 ADD etc/php-fpm.conf /etc/php-fpm.conf
@@ -27,9 +29,7 @@ RUN /usr/sbin/adduser --home-dir /var/lib/nginx --uid 499 --user-group --shell /
 RUN /usr/bin/mkdir -p /app/log/php-fpm && \
     /usr/bin/chown nginx:app /app/log/php-fpm
 
-# Start the PHP-FPM service, and expose the 9000 port for TCP connections
-ENTRYPOINT ["/usr/sbin/php-fpm"]
-CMD ["-c /etc/php-fpm.conf"]
+# expose the 9000 port for TCP connections
 EXPOSE 9000
 
 ### /PHP-FPM ------------------------------------------------------------------

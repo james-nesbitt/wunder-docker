@@ -1,4 +1,4 @@
-FROM       jamesnesbitt/centos7systemd
+FROM       centos
 MAINTAINER james.nesbitt@wunderkraut.com
 
 ### WUNDER BASE --------------------------------------------------------------
@@ -18,6 +18,9 @@ RUN /usr/bin/yum --assumeyes --verbose install hostname openssl
 
 # Create the base for our convention of using /app for the application
 ADD app /app
+
+# Always keep /tmp out of the images
+VOLUME [ "/tmp" ]
 
 # Create two users to share UIDs across all systems
 # - core : 500 : this is a user who's uid would match that of a CoreOS host;
