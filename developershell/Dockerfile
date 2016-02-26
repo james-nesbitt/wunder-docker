@@ -4,7 +4,7 @@ MAINTAINER james.nesbitt@wunderkraut.com
 ### DEVELOPER  ---------------------------------------------------------------
 
 # Install some tools that are usefull for a developer
-RUN /usr/bin/yum --assumeyes --verbose install openssl tar git zsh sudo vim
+RUN /usr/bin/yum --assumeyes --verbose install openssl tar git zsh sudo vim patch
 
 # Allow passwordless sudo for the app user
 RUN /usr/bin/echo "app        ALL=(ALL)       NOPASSWD: ALL" > /etc/sudoers.d/app
@@ -40,15 +40,15 @@ USER app
 # Add composer paths and app/bin to path
 ENV PATH /app/bin:/app/.composer/vendor/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
-# Install DRUSH, which is a requirement for platform
-RUN /usr/bin/composer global require drush/drush:dev-master drush/config-extra
-
 # Install Drupal console
-RUN /usr/bin/composer global require drupal/console
+RUN /usr/bin/composer global require --optimize-autoloader --sort-packages drupal/console
+
+# Install DRUSH,
+RUN /usr/bin/composer global require --optimize-autoloader --sort-packages drush/drush pear/Console_Color2 drush/config-extra
 
 # Install platform.sh cli
-# RUN composer global require platformsh/cli # this conflicts with drupal console
-RUN /usr/bin/composer global require platformsh/cli:@stable
+# RUN composer global require --optimize-autoloader --sort-packages platformsh/cli # this conflicts with drupal console
+# RUN /usr/bin/composer global require --optimize-autoloader --sort-packages platformsh/cli:@stable
 
 # Configure Platform CLI with this ENV var
 ENV PLATFORMSH_CLI_API_TOKEN %PLATFORMSH_CLI_API_TOKEN
