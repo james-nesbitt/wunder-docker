@@ -4,7 +4,7 @@ MAINTAINER james.nesbitt@wunderkraut.com
 ### DEVELOPER  ---------------------------------------------------------------
 
 # Install some tools that are usefull for a developer
-RUN /usr/bin/yum --assumeyes --verbose install openssl tar git zsh sudo vim patch
+RUN /usr/bin/yum --assumeyes --verbose install openssl tar git zsh sudo vim patch unzip p7zip
 
 # Allow passwordless sudo for the app user
 RUN /usr/bin/echo "app        ALL=(ALL)       NOPASSWD: ALL" > /etc/sudoers.d/app
