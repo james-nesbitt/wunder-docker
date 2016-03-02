@@ -4,7 +4,7 @@ MAINTAINER james.nesbitt@wunderkraut.com
 ### DEVELOPER  ---------------------------------------------------------------
 
 # Install some tools that are usefull for a developer
-RUN /usr/bin/yum --assumeyes --verbose install openssl tar git zsh sudo vim patch unzip p7zip
+RUN /usr/bin/yum --assumeyes --verbose install openssl tar git zsh sudo vim patch unzip p7zip which ansible
 
 # Allow passwordless sudo for the app user
 RUN /usr/bin/echo "app        ALL=(ALL)       NOPASSWD: ALL" > /etc/sudoers.d/app
@@ -21,15 +21,19 @@ RUN /usr/bin/rpm -Uvh http://rpms.remirepo.net/enterprise/remi-release-7.rpm
 ADD etc/yum.repos.d/remi.repo /etc/yum.repos.d/remi.repo
 ADD etc/yum.repos.d/remi-php70.repo /etc/yum.repos.d/remi-php70.repo
 
-# Install MariaDB
-ADD etc/yum.repos.d/mariadb.repo etc/yum.repos.d/mariadb.repo
-RUN /usr/bin/yum --assumeyes --verbose install MariaDB-client
+# Add some php extension configuraiton overrides
+ADD etc/php.d/01-defaultdatetime.ini /etc/php.d/01-defaultdatetime.ini
+ADD etc/php.d/40-apcu.ini /etc/php.d/40-apcu.ini
 
 # Install php-fpm - currently php7-rc5
 RUN /usr/bin/yum install --assumeyes --verbose \
-    php-cli php-opcache php-fpm php-pdo php-mysql php-pgsql php-ldap \
-    php-gd php-mbstring php-mcrypt php-xml php-soap php-json \
-    php-pecl-apcu php-pecl-geoip php-pecl-zip
+    php-cli php-opcache php-pdo php-mysql php-pgsql \
+    php-ldap php-gd php-mbstring php-mcrypt php-xml \
+    php-pecl-apcu php-pecl-yaml php-pecl-uploadprogress php-pecl-zip
+
+# Install MariaDB
+ADD etc/yum.repos.d/mariadb.repo etc/yum.repos.d/mariadb.repo
+RUN /usr/bin/yum --assumeyes --verbose install MariaDB-client
 
 # Install composer which will be used to install drush
 RUN /usr/bin/yum install --assumeyes --verbose composer
