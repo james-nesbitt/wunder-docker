@@ -3,11 +3,12 @@ MAINTAINER  james.nesbitt@wunderkraut.com
 
 ### DRUSH ---------------------------------------------------------------
 
-# Prepare to use the remi repo for PHP: our .repo file has certain repos enabled=1
-ADD root/remi-release-7.rpm /root/remi-release-7.rpm
-RUN /usr/bin/rpm -Uvh /root/remi-release-7.rpm
-ADD etc/yum.repos.d/remi.repo /etc/yum.repos.d/remi.repo
-ADD etc/yum.repos.d/remi-php70.repo /etc/yum.repos.d/remi-php70.repo
+# This build will use the yum-config-manager to enable repos
+RUN /usr/bin/yum install --assumeyes --verbose yum-utils
+
+# Install the REMI repo : HOW NICE WOULD IT BE TO HAVE AN HTTPS ?!?
+RUN /usr/bin/yum install --assumeyes --verbose http://rpms.remirepo.net/enterprise/remi-release-7.rpm
+RUN yum-config-manager --enable remi-php70
 
 # Install php-fpm - currently php7-rc6
 RUN /usr/bin/yum install --assumeyes --verbose \
@@ -18,6 +19,12 @@ RUN /usr/bin/yum install --assumeyes --verbose \
 # Add some php extension configuraiton overrides
 ADD etc/php.d/01-defaultdatezone.ini /etc/php.d/01-defaultdatezone.ini
 ADD etc/php.d/40-apcu.ini /etc/php.d/40-apcu.ini
+
+# Install blackfire - still doesn't work as the blackfire install script doesn't like our php7
+RUN curl "http://packages.blackfire.io/fedora/blackfire.repo" | tee /etc/yum.repos.d/blackfire.repo
+RUN /usr/bin/yum install --assumeyes --verbose  pygpgme php-cli blackfire-php
+RUN /usr/bin/yum remove --assumeyes --verbose  php-cli
+ADD etc/php.d/zz-blackfire.ini /etc/php.d/zz-blackfire.ini
 
 # Install MariaDB
 ADD etc/yum.repos.d/mariadb.repo etc/yum.repos.d/mariadb.repo
