@@ -3,14 +3,14 @@ MAINTAINER  james.nesbitt@wunderkraut.com
 
 ### PHP-FPM -------------------------------------------------------------------
 
-# Install the REMI repo : HOW NICE WOULD IT BE TO HAVE AN HTTPS ?!?
-RUN /usr/bin/rpm -Uvh http://rpms.remirepo.net/enterprise/remi-release-7.rpm
-# Prepare to use the remi repo for PHP: our .repo file has certain repos enabled=1
-# Overwrite the default remi repos, to enable the remi and remi7 by default
-ADD etc/yum.repos.d/remi.repo /etc/yum.repos.d/remi.repo
-ADD etc/yum.repos.d/remi-php70.repo /etc/yum.repos.d/remi-php70.repo
+# This build will use the yum-config-manager to enable repos
+RUN /usr/bin/yum install --assumeyes --verbose yum-utils
 
-# Install php-fpm - currently php7-rc6
+# Install the REMI repo : HOW NICE WOULD IT BE TO HAVE AN HTTPS ?!?
+RUN /usr/bin/yum install --assumeyes --verbose http://rpms.remirepo.net/enterprise/remi-release-7.rpm
+RUN yum-config-manager --enable remi-php70
+
+# Install php-fpm
 RUN /usr/bin/yum install --assumeyes --verbose \
     php-fpm php-opcache php-pdo php-mysql php-pgsql \
     php-ldap php-gd php-mbstring php-mcrypt php-xml \
@@ -25,9 +25,10 @@ ADD etc/php-fpm.d/www.conf /etc/php-fpm.d/www.conf
 ADD etc/php.d/15-xdebug.ini /etc/php.d/15-xdebug.ini
 
 # Install blackfire - still doesn't work as the blackfire install script doesn't like our php7
-# ADD etc/yum.repos.d/blackfire.repo /etc/yum.repos.d/blackfire.repo
-# RUN /usr/bin/yum install -y install pygpgme blackfire-php
-# ADD etc/php.d/zz-blackfire.ini /etc/php.d/zz-blackfire.ini
+RUN curl "http://packages.blackfire.io/fedora/blackfire.repo" | tee /etc/yum.repos.d/blackfire.repo
+RUN /usr/bin/yum install --assumeyes --verbose  pygpgme php-cli blackfire-php
+RUN /usr/bin/yum remove --assumeyes --verbose  php-cli
+ADD etc/php.d/zz-blackfire.ini /etc/php.d/zz-blackfire.ini
 
 # make sure that the nginx user, created, has access to app user files
 # nginx:x:499:499:Nginx web server:/var/lib/nginx:/sbin/nologin
