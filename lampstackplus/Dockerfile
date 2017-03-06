@@ -124,6 +124,9 @@ ADD etc/php.d/zz-blackfire.ini /etc/php.d/zz-blackfire.ini
 ENV BLACKFIRE_SERVER_ID %BLACKFIRE_SERVER_ID
 ENV BLACKFIRE_SERVER_TOKEN %BLACKFIRE_SERVER_TOKEN
 
+# Somnetimes the blackfire yum repo gives bigtime errors.  Remove it until upstream fixes it.
+RUN /usr/bin/rm /etc/yum.repos.d/blackfire.repo
+
 #ENTRYPOINT ["blackfire-agent"]
 #CMD ["--config", "/dev/null"]
 #EXPOSE 8707
